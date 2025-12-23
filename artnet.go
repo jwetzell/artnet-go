@@ -1,6 +1,10 @@
 package artnet
 
-import "fmt"
+import (
+	"encoding/binary"
+	"errors"
+	"fmt"
+)
 
 var (
 	OpPoll             uint16 = 0x2000
@@ -43,20 +47,19 @@ var (
 	OpDirectoryReply   uint16 = 0x9b00
 )
 
-func Decode(bytes []byte) (ArtNetPacket, error) {
-	header, err := NewHeader(bytes)
-	if err != nil {
-		return nil, err
-	}
-	switch header.OpCode {
-	case OpPoll:
-		return NewArtPoll(header, bytes)
-	case OpCommand:
-		return NewArtCommand(header, bytes)
-	case OpDmx:
-		return NewArtDmx(header, bytes)
-	default:
-		return nil, fmt.Errorf("unhandled opcode: %#x", header.OpCode)
+var ArtNetID []uint8 = []uint8{'A', 'r', 't', '-', 'N', 'e', 't', 0x00}
 
+func Decode(bytes []byte) (ArtNetPacket, error) {
+	if len(bytes) < 12 {
+		return nil, errors.New("ArtNet packet must be at least 12 bytes")
+	}
+	opCode := binary.LittleEndian.Uint16(bytes[8:10])
+	switch opCode {
+	case OpPoll:
+		return NewArtPoll(bytes)
+	case OpDmx:
+		return NewArtDmx(bytes)
+	default:
+		return nil, fmt.Errorf("unhandled opcode: %#x", opCode)
 	}
 }
