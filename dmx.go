@@ -48,7 +48,9 @@ func (ad *ArtDmx) UnmarshalBinary(data []byte) error {
 		return errors.New("ArtDmx packet must be at least 18 bytes long")
 	}
 
-	if !slices.Equal(ArtNetID, data[0:8]) {
+	ad.ID = data[0:8]
+
+	if !slices.Equal(ArtNetID, ad.ID) {
 		return errors.New("ID does not match Art-Net ID")
 	}
 

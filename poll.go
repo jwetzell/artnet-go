@@ -53,7 +53,9 @@ func (ap *ArtPoll) UnmarshalBinary(data []byte) error {
 		return errors.New("ArtPoll packet must be at least 14 bytes long")
 	}
 
-	if !slices.Equal(ArtNetID, data[0:8]) {
+	ap.ID = data[0:8]
+
+	if !slices.Equal(ArtNetID, ap.ID) {
 		return errors.New("ID does not match Art-Net ID")
 	}
 
