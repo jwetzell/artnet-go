@@ -1,0 +1,80 @@
+package artnet_test
+
+import (
+	"slices"
+	"testing"
+
+	"github.com/jwetzell/artnet-go"
+)
+
+func TestGoodArtDmx(t *testing.T) {
+	tests := []struct {
+		Data     []byte
+		Expected *artnet.ArtDmx
+	}{
+		{
+			Data: []byte{65, 114, 116, 45, 78, 101, 116, 0, 0, 80, 0, 14, 237, 0, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+			Expected: &artnet.ArtDmx{
+				ID:        []byte{'A', 'r', 't', '-', 'N', 'e', 't', 0x00},
+				OpCode:    artnet.OpDmx,
+				ProtVerHi: 0,
+				ProtVerLo: 14,
+				Sequence:  237,
+				Physical:  0,
+				SubUni:    1,
+				Net:       0,
+				Length:    512,
+				Data:      make([]uint8, 512),
+			},
+		},
+	}
+
+	for _, test := range tests {
+		got, err := artnet.NewArtDmx(test.Data)
+
+		if err != nil {
+			t.Fatalf("failed to decode ArtDmx: %s", err)
+		}
+
+		if got.OpCode != test.Expected.OpCode {
+			t.Fatalf("ArtDmx OpCode does not match got: %d expected: %d", got.OpCode, test.Expected.OpCode)
+		}
+
+		if !slices.Equal(got.ID, test.Expected.ID) {
+			t.Fatalf("ArtDmx ID does not match got: %+v expected: %+v", got.ID, test.Expected.ID)
+		}
+
+		if got.ProtVerHi != test.Expected.ProtVerHi {
+			t.Fatalf("ArtDmx ProtVerHi does not match got: %d expected: %d", got.ProtVerHi, test.Expected.ProtVerHi)
+		}
+
+		if got.ProtVerLo != test.Expected.ProtVerLo {
+			t.Fatalf("ArtDmx ProtVerLo does not match got: %d expected: %d", got.ProtVerLo, test.Expected.ProtVerLo)
+		}
+
+		if got.Sequence != test.Expected.Sequence {
+			t.Fatalf("ArtDmx Sequence does not match got: %d expected: %d", got.Sequence, test.Expected.Sequence)
+		}
+
+		if got.Physical != test.Expected.Physical {
+			t.Fatalf("ArtDmx Physical does not match got: %d expected: %d", got.Physical, test.Expected.Physical)
+		}
+
+		if got.SubUni != test.Expected.SubUni {
+			t.Fatalf("ArtDmx SubUni does not match got: %d expected: %d", got.SubUni, test.Expected.SubUni)
+		}
+
+		if got.Net != test.Expected.Net {
+			t.Fatalf("ArtDmx Net does not match got: %d expected: %d", got.Net, test.Expected.Net)
+		}
+
+		if got.Length != test.Expected.Length {
+			t.Fatalf("ArtDmx Length does not match got: %d expected: %d", got.Length, test.Expected.Length)
+		}
+
+		if !slices.Equal(got.Data, test.Expected.Data) {
+			t.Fatalf("ArtDmx Data does not match got: %+v expected: %+v", got.Data, test.Expected.Data)
+		}
+
+	}
+}
