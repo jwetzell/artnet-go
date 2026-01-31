@@ -3,7 +3,6 @@ package artnet
 import (
 	"encoding/binary"
 	"errors"
-	"fmt"
 	"slices"
 )
 
@@ -46,7 +45,6 @@ func (atc *ArtTimeCode) GetID() []uint8 {
 }
 
 func (atc *ArtTimeCode) UnmarshalBinary(data []byte) error {
-	fmt.Println(data)
 	if len(data) < 14 {
 		return errors.New("ArtTimeCode packet must be at least 14 bytes long")
 	}
