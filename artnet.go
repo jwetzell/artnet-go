@@ -59,6 +59,8 @@ func Decode(bytes []byte) (ArtNetPacket, error) {
 		return NewArtPoll(bytes)
 	case OpDmx:
 		return NewArtDmx(bytes)
+	case OpTimeCode:
+		return NewArtTimeCode(bytes)
 	default:
 		return nil, fmt.Errorf("unhandled opcode: %#x", opCode)
 	}
