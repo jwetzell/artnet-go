@@ -56,11 +56,35 @@ func Decode(bytes []byte) (ArtNetPacket, error) {
 	opCode := binary.LittleEndian.Uint16(bytes[8:10])
 	switch opCode {
 	case OpPoll:
-		return NewArtPoll(bytes)
+		artPoll := ArtPoll{}
+
+		err := artPoll.UnmarshalBinary(bytes)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return &artPoll, nil
 	case OpDmx:
-		return NewArtDmx(bytes)
+		artDmx := ArtDmx{}
+
+		err := artDmx.UnmarshalBinary(bytes)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return &artDmx, nil
 	case OpTimeCode:
-		return NewArtTimeCode(bytes)
+		artTimeCode := ArtTimeCode{}
+
+		err := artTimeCode.UnmarshalBinary(bytes)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return &artTimeCode, nil
 	default:
 		return nil, fmt.Errorf("unhandled opcode: %#x", opCode)
 	}

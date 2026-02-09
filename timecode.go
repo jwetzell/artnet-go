@@ -20,18 +20,6 @@ type ArtTimeCode struct {
 	Type      uint8
 }
 
-func NewArtTimeCode(data []byte) (*ArtTimeCode, error) {
-	artTimeCode := ArtTimeCode{}
-
-	err := artTimeCode.UnmarshalBinary(data)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &artTimeCode, nil
-}
-
 func (atc *ArtTimeCode) GetOpCode() uint16 {
 	return atc.OpCode
 }

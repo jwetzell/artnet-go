@@ -23,18 +23,6 @@ type ArtPoll struct {
 	OemLo           uint8
 }
 
-func NewArtPoll(data []byte) (*ArtPoll, error) {
-	artPoll := ArtPoll{}
-
-	err := artPoll.UnmarshalBinary(data)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &artPoll, nil
-}
-
 func (ap *ArtPoll) GetOpCode() uint16 {
 	return ap.OpCode
 }

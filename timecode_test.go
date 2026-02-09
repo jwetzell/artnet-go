@@ -31,7 +31,9 @@ func TestGoodArtTimeCode(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		got, err := artnet.NewArtTimeCode(test.Data)
+		got := artnet.ArtTimeCode{}
+
+		err := got.UnmarshalBinary(test.Data)
 
 		if err != nil {
 			t.Fatalf("failed to decode ArtTimeCode: %s", err)

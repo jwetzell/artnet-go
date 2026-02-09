@@ -30,7 +30,9 @@ func TestGoodArtDmx(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		got, err := artnet.NewArtDmx(test.Data)
+		got := artnet.ArtDmx{}
+
+		err := got.UnmarshalBinary(test.Data)
 
 		if err != nil {
 			t.Fatalf("failed to decode ArtDmx: %s", err)

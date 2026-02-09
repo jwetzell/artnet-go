@@ -19,18 +19,6 @@ type ArtDmx struct {
 	Data      []uint8
 }
 
-func NewArtDmx(data []byte) (*ArtDmx, error) {
-	artDmx := ArtDmx{}
-
-	err := artDmx.UnmarshalBinary(data)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &artDmx, nil
-}
-
 func (ad *ArtDmx) GetOpCode() uint16 {
 	return ad.OpCode
 }
