@@ -47,7 +47,7 @@ var (
 	OpDirectoryReply   uint16 = 0x9b00
 )
 
-var ArtNetID []uint8 = []uint8{'A', 'r', 't', '-', 'N', 'e', 't', 0x00}
+var ArtNetID [8]uint8 = [8]uint8{'A', 'r', 't', '-', 'N', 'e', 't', 0x00}
 
 func Decode(bytes []byte) (ArtNetPacket, error) {
 	if len(bytes) < 12 {

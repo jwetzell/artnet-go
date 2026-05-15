@@ -9,5 +9,5 @@ type ArtNetPacket interface {
 	encoding.BinaryMarshaler
 	GetOpCode() uint16
 	GetProtVer() uint16
-	GetID() []uint8
+	GetID() [8]uint8
 }

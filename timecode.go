@@ -7,7 +7,7 @@ import (
 )
 
 type ArtTimeCode struct {
-	ID        []uint8
+	ID        [8]uint8
 	OpCode    uint16
 	ProtVerHi uint8
 	ProtVerLo uint8
@@ -28,7 +28,7 @@ func (atc *ArtTimeCode) GetProtVer() uint16 {
 	return uint16(atc.ProtVerHi)<<8 + uint16(atc.ProtVerLo)
 }
 
-func (atc *ArtTimeCode) GetID() []uint8 {
+func (atc *ArtTimeCode) GetID() [8]uint8 {
 	return atc.ID
 }
 
@@ -37,9 +37,9 @@ func (atc *ArtTimeCode) UnmarshalBinary(data []byte) error {
 		return errors.New("ArtTimeCode packet must be at least 14 bytes long")
 	}
 
-	atc.ID = data[0:8]
+	copy(atc.ID[:], data[0:8])
 
-	if !slices.Equal(ArtNetID, atc.ID) {
+	if !slices.Equal(ArtNetID[:], atc.ID[:]) {
 		return errors.New("ID does not match Art-Net ID")
 	}
 
@@ -59,7 +59,18 @@ func (atc *ArtTimeCode) UnmarshalBinary(data []byte) error {
 }
 
 func (atc *ArtTimeCode) MarshalBinary() ([]byte, error) {
-	data := []byte(ArtNetID)
-	data = append(data, byte(atc.OpCode), byte(atc.OpCode>>8), atc.ProtVerHi, atc.ProtVerLo, atc.Filler1, atc.StreamId, atc.Frames, atc.Seconds, atc.Minutes, atc.Hours, atc.Type)
+	data := make([]byte, 8+11)
+	copy(data[0:8], atc.ID[:])
+	binary.LittleEndian.PutUint16(data[8:10], atc.OpCode)
+	data[10] = atc.ProtVerHi
+	data[11] = atc.ProtVerLo
+	offset := 12
+	data[offset] = atc.Filler1
+	data[offset+1] = atc.StreamId
+	data[offset+2] = atc.Frames
+	data[offset+3] = atc.Seconds
+	data[offset+4] = atc.Minutes
+	data[offset+5] = atc.Hours
+	data[offset+6] = atc.Type
 	return data, nil
 }
