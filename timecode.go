@@ -33,7 +33,7 @@ func (atc *ArtTimeCode) GetID() [8]uint8 {
 }
 
 func (atc *ArtTimeCode) UnmarshalBinary(data []byte) error {
-	if len(data) < 14 {
+	if len(data) < 19 {
 		return errors.New("ArtTimeCode packet must be at least 14 bytes long")
 	}
 
