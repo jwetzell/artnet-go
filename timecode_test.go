@@ -121,3 +121,11 @@ func BenchmarkArtTimeCodeMarshalBinary(b *testing.B) {
 		}
 	}
 }
+
+func FuzzArtTimeCodeUnmarshalBinary(f *testing.F) {
+	f.Add([]byte{65, 114, 116, 45, 78, 101, 116, 0, 0, 151, 0, 14, 0, 0, 11, 17, 3, 0, 0})
+	f.Fuzz(func(t *testing.T, data []byte) {
+		artTimeCode := artnet.ArtTimeCode{}
+		artTimeCode.UnmarshalBinary(data)
+	})
+}

@@ -113,3 +113,11 @@ func BenchmarkArtDmxMarshalBinary(b *testing.B) {
 		}
 	}
 }
+
+func FuzzArtDmxUnmarshalBinary(f *testing.F) {
+	f.Add([]byte{65, 114, 116, 45, 78, 101, 116, 0, 0, 80, 0, 14, 237, 0, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
+	f.Fuzz(func(t *testing.T, data []byte) {
+		artDmx := artnet.ArtDmx{}
+		artDmx.UnmarshalBinary(data)
+	})
+}
