@@ -7,20 +7,13 @@ import (
 )
 
 type ArtPoll struct {
-	ID              [8]uint8
-	OpCode          uint16
-	ProtVerHi       uint8
-	ProtVerLo       uint8
-	Flags           uint8
-	DiagPriority    uint8
-	AddressTopHi    uint8
-	AddressTopLo    uint8
-	AddressBottomHi uint8
-	AddressBottomLo uint8
-	EstaManHi       uint8
-	EstaManLo       uint8
-	OemHi           uint8
-	OemLo           uint8
+	ID           [8]uint8
+	OpCode       uint16
+	ProtVerHi    uint8
+	ProtVerLo    uint8
+	Flags        uint8
+	DiagPriority uint8
+	// TODO(jwetzell): support extended poll fields
 }
 
 func (ap *ArtPoll) GetOpCode() uint16 {
@@ -54,7 +47,6 @@ func (ap *ArtPoll) UnmarshalBinary(data []byte) error {
 	offset := 12
 	ap.Flags = data[offset]
 	ap.DiagPriority = data[offset+1]
-	//TODO(jwetzell): unpack extended poll fields
 	return nil
 }
 
@@ -66,6 +58,5 @@ func (ap *ArtPoll) MarshalBinary() ([]byte, error) {
 	data[11] = ap.ProtVerLo
 	data[12] = ap.Flags
 	data[13] = ap.DiagPriority
-	//TODO(jwetzell): pack extended poll fields
 	return data, nil
 }

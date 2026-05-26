@@ -6,15 +6,20 @@ import (
 	"slices"
 )
 
+type Command string
+
+const (
+	SwoutText Command = "SwoutText"
+	SwinText  Command = "SwinText"
+)
+
 type ArtCommand struct {
 	ID        [8]uint8
 	OpCode    uint16
 	ProtVerHi uint8
 	ProtVerLo uint8
-	EstaManHi uint8
-	EstaManLo uint8
-	LengthHi  uint8
-	LengthLo  uint8
+	EstaMan   uint16
+	Length    uint16
 	Data      []uint8
 }
 
@@ -36,8 +41,7 @@ func (ap *ArtCommand) SetData(data string) error {
 	}
 	ap.Data = make([]uint8, len(data))
 	copy(ap.Data, data)
-	ap.LengthHi = uint8(len(data) >> 8)
-	ap.LengthLo = uint8(len(data) & 0xff)
+	ap.Length = uint16(len(data))
 	return nil
 }
 
@@ -58,12 +62,10 @@ func (ap *ArtCommand) UnmarshalBinary(data []byte) error {
 	ap.ProtVerLo = data[11]
 
 	offset := 12
-	ap.EstaManHi = data[offset]
-	ap.EstaManLo = data[offset+1]
-	ap.LengthHi = data[offset+2]
-	ap.LengthLo = data[offset+3]
+	ap.EstaMan = binary.LittleEndian.Uint16(data[offset : offset+2])
+	ap.Length = binary.LittleEndian.Uint16(data[offset+2 : offset+4])
 
-	dataLength := int(ap.LengthHi)<<8 + int(ap.LengthLo)
+	dataLength := int(ap.Length)
 
 	if len(data[offset+4:]) < dataLength {
 		return errors.New("[]byte length not long enough to contain data length specified in packet")
@@ -79,10 +81,8 @@ func (ap *ArtCommand) MarshalBinary() ([]byte, error) {
 	binary.LittleEndian.PutUint16(data[8:10], ap.OpCode)
 	data[10] = ap.ProtVerHi
 	data[11] = ap.ProtVerLo
-	data[12] = ap.EstaManHi
-	data[13] = ap.EstaManLo
-	data[14] = ap.LengthHi
-	data[15] = ap.LengthLo
+	binary.LittleEndian.PutUint16(data[12:14], ap.EstaMan)
+	binary.LittleEndian.PutUint16(data[14:16], ap.Length)
 	data = append(data, ap.Data...)
 	return data, nil
 }

@@ -6,6 +6,15 @@ import (
 	"slices"
 )
 
+type Key uint8
+
+const (
+	KeyASCII Key = 0
+	KeyMacro Key = 1
+	KeySoft  Key = 2
+	KeyShow  Key = 3
+)
+
 type ArtTrigger struct {
 	ID        [8]uint8
 	OpCode    uint16
@@ -13,9 +22,8 @@ type ArtTrigger struct {
 	ProtVerLo uint8
 	filler1   uint8
 	filler2   uint8
-	OemHi     uint8
-	OemLo     uint8
-	Key       uint8
+	Oem       uint16
+	Key       Key
 	SubKey    uint8
 	Data      []uint8
 }
@@ -51,9 +59,8 @@ func (ap *ArtTrigger) UnmarshalBinary(data []byte) error {
 	offset := 12
 	ap.filler1 = data[offset]
 	ap.filler2 = data[offset+1]
-	ap.OemHi = data[offset+2]
-	ap.OemLo = data[offset+3]
-	ap.Key = data[offset+4]
+	ap.Oem = binary.LittleEndian.Uint16(data[offset+2 : offset+4])
+	ap.Key = Key(data[offset+4])
 	ap.SubKey = data[offset+5]
 	ap.Data = make([]uint8, len(data[offset+6:]))
 	copy(ap.Data, data[offset+6:])
@@ -68,9 +75,8 @@ func (ap *ArtTrigger) MarshalBinary() ([]byte, error) {
 	data[11] = ap.ProtVerLo
 	data[12] = ap.filler1
 	data[13] = ap.filler2
-	data[14] = ap.OemHi
-	data[15] = ap.OemLo
-	data[16] = ap.Key
+	binary.LittleEndian.PutUint16(data[14:16], ap.Oem)
+	data[16] = uint8(ap.Key)
 	data[17] = ap.SubKey
 	data = append(data, ap.Data...)
 	return data, nil

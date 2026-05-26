@@ -22,12 +22,9 @@ type ArtDataRequest struct {
 	OpCode    uint16
 	ProtVerHi uint8
 	ProtVerLo uint8
-	EstaManHi uint8
-	EstaManLo uint8
-	OemHi     uint8
-	OemLo     uint8
-	RequestHi uint8
-	RequestLo uint8
+	EstaMan   uint16
+	Oem       uint16
+	Request   uint16
 	spare     [22]byte
 }
 
@@ -41,10 +38,6 @@ func (ap *ArtDataRequest) GetProtVer() uint16 {
 
 func (ap *ArtDataRequest) GetID() [8]uint8 {
 	return ap.ID
-}
-
-func (ap *ArtDataRequest) GetDataRequestType() DataRequest {
-	return DataRequest(uint16(ap.RequestHi)<<8 + uint16(ap.RequestLo))
 }
 
 func (ap *ArtDataRequest) UnmarshalBinary(data []byte) error {
@@ -64,12 +57,9 @@ func (ap *ArtDataRequest) UnmarshalBinary(data []byte) error {
 	ap.ProtVerLo = data[11]
 
 	offset := 12
-	ap.EstaManHi = data[offset]
-	ap.EstaManLo = data[offset+1]
-	ap.OemHi = data[offset+2]
-	ap.OemLo = data[offset+3]
-	ap.RequestHi = data[offset+4]
-	ap.RequestLo = data[offset+5]
+	ap.EstaMan = binary.LittleEndian.Uint16(data[offset : offset+2])
+	ap.Oem = binary.LittleEndian.Uint16(data[offset+2 : offset+4])
+	ap.Request = binary.LittleEndian.Uint16(data[offset+4 : offset+6])
 	copy(ap.spare[:], data[offset+6:offset+28])
 	return nil
 }
@@ -80,12 +70,9 @@ func (ap *ArtDataRequest) MarshalBinary() ([]byte, error) {
 	binary.LittleEndian.PutUint16(data[8:10], ap.OpCode)
 	data[10] = ap.ProtVerHi
 	data[11] = ap.ProtVerLo
-	data[12] = ap.EstaManHi
-	data[13] = ap.EstaManLo
-	data[14] = ap.OemHi
-	data[15] = ap.OemLo
-	data[16] = ap.RequestHi
-	data[17] = ap.RequestLo
+	binary.LittleEndian.PutUint16(data[12:14], ap.EstaMan)
+	binary.LittleEndian.PutUint16(data[14:16], ap.Oem)
+	binary.LittleEndian.PutUint16(data[16:18], ap.Request)
 	copy(data[18:40], ap.spare[:])
 	return data, nil
 }

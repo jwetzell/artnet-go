@@ -25,8 +25,7 @@ type ArtDiagData struct {
 	DiagPriority DiagPriority
 	LogicalPort  uint8
 	filler3      uint8
-	LengthHi     uint8
-	LengthLo     uint8
+	Length       uint16
 	Data         []uint8
 }
 
@@ -63,16 +62,13 @@ func (ap *ArtDiagData) UnmarshalBinary(data []byte) error {
 	ap.DiagPriority = DiagPriority(data[offset+1])
 	ap.LogicalPort = data[offset+2]
 	ap.filler3 = data[offset+3]
-	ap.LengthHi = data[offset+4]
-	ap.LengthLo = data[offset+5]
+	ap.Length = binary.LittleEndian.Uint16(data[offset+4 : offset+6])
 
-	dataLength := int(ap.LengthHi)<<8 + int(ap.LengthLo)
-
-	if len(data[offset+6:]) < dataLength {
+	if len(data[offset+6:]) < int(ap.Length) {
 		return errors.New("[]byte length not long enough to contain data length specified in packet")
 	}
-	ap.Data = make([]uint8, dataLength)
-	copy(ap.Data, data[offset+6:offset+6+dataLength])
+	ap.Data = make([]uint8, ap.Length)
+	copy(ap.Data, data[offset+6:offset+6+int(ap.Length)])
 	return nil
 }
 
@@ -86,8 +82,7 @@ func (ap *ArtDiagData) MarshalBinary() ([]byte, error) {
 	data[13] = uint8(ap.DiagPriority)
 	data[14] = ap.LogicalPort
 	data[15] = ap.filler3
-	data[16] = ap.LengthHi
-	data[17] = ap.LengthLo
+	binary.LittleEndian.PutUint16(data[16:18], ap.Length)
 	data = append(data, ap.Data...)
 	return data, nil
 }
