@@ -85,6 +85,56 @@ func Decode(bytes []byte) (ArtNetPacket, error) {
 		}
 
 		return &artTimeCode, nil
+	case OpDataRequest:
+		artDataRequest := ArtDataRequest{}
+
+		err := artDataRequest.UnmarshalBinary(bytes)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return &artDataRequest, nil
+	case OpDiagData:
+		artDiagData := ArtDiagData{}
+
+		err := artDiagData.UnmarshalBinary(bytes)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return &artDiagData, nil
+	case OpCommand:
+		artCommand := ArtCommand{}
+
+		err := artCommand.UnmarshalBinary(bytes)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return &artCommand, nil
+	case OpTrigger:
+		artTrigger := ArtTrigger{}
+
+		err := artTrigger.UnmarshalBinary(bytes)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return &artTrigger, nil
+	case OpSync:
+		artSync := ArtSync{}
+
+		err := artSync.UnmarshalBinary(bytes)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return &artSync, nil
 	default:
 		return nil, fmt.Errorf("unhandled opcode: %#x", opCode)
 	}
