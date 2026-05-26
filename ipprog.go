@@ -35,93 +35,93 @@ type ArtIpProg struct {
 	spare7     uint8
 }
 
-func (ad *ArtIpProg) GetOpCode() uint16 {
-	return ad.OpCode
+func (aip *ArtIpProg) GetOpCode() uint16 {
+	return aip.OpCode
 }
 
-func (ad *ArtIpProg) GetProtVer() uint16 {
-	return uint16(ad.ProtVerHi)<<8 + uint16(ad.ProtVerLo)
+func (aip *ArtIpProg) GetProtVer() uint16 {
+	return uint16(aip.ProtVerHi)<<8 + uint16(aip.ProtVerLo)
 }
 
-func (ad *ArtIpProg) GetID() [8]uint8 {
-	return ad.ID
+func (aip *ArtIpProg) GetID() [8]uint8 {
+	return aip.ID
 }
 
-func (ad *ArtIpProg) UnmarshalBinary(data []byte) error {
+func (aip *ArtIpProg) UnmarshalBinary(data []byte) error {
 	if len(data) < 34 {
 		return errors.New("ArtIpProg packet must be at least 18 bytes long")
 	}
 
-	copy(ad.ID[:], data[0:8])
+	copy(aip.ID[:], data[0:8])
 
-	if !slices.Equal(ArtNetID[:], ad.ID[:]) {
+	if !slices.Equal(ArtNetID[:], aip.ID[:]) {
 		return errors.New("ID does not match Art-Net ID")
 	}
 
-	ad.OpCode = binary.LittleEndian.Uint16(data[8:10])
-	ad.ProtVerHi = data[10]
-	ad.ProtVerLo = data[11]
+	aip.OpCode = binary.LittleEndian.Uint16(data[8:10])
+	aip.ProtVerHi = data[10]
+	aip.ProtVerLo = data[11]
 
 	offset := 12
 
-	ad.filler1 = data[offset]
-	ad.filler2 = data[offset+1]
-	ad.Command = data[offset+2]
-	ad.filler4 = data[offset+3]
+	aip.filler1 = data[offset]
+	aip.filler2 = data[offset+1]
+	aip.Command = data[offset+2]
+	aip.filler4 = data[offset+3]
 
-	ad.ProgIpHi = data[offset+4]
-	ad.ProgIp2 = data[offset+5]
-	ad.ProgIp1 = data[offset+6]
-	ad.ProgIpLo = data[offset+7]
+	aip.ProgIpHi = data[offset+4]
+	aip.ProgIp2 = data[offset+5]
+	aip.ProgIp1 = data[offset+6]
+	aip.ProgIpLo = data[offset+7]
 
-	ad.ProgSmHi = data[offset+8]
-	ad.ProgSm2 = data[offset+9]
-	ad.ProgSm1 = data[offset+10]
-	ad.ProgSmLo = data[offset+11]
+	aip.ProgSmHi = data[offset+8]
+	aip.ProgSm2 = data[offset+9]
+	aip.ProgSm1 = data[offset+10]
+	aip.ProgSmLo = data[offset+11]
 
-	ad.ProgPortHi = data[offset+12]
-	ad.ProgPortLo = data[offset+13]
+	aip.ProgPortHi = data[offset+12]
+	aip.ProgPortLo = data[offset+13]
 
-	ad.ProgDgHi = data[offset+14]
-	ad.ProgDg2 = data[offset+15]
-	ad.ProgDg1 = data[offset+16]
-	ad.ProgDgLo = data[offset+17]
+	aip.ProgDgHi = data[offset+14]
+	aip.ProgDg2 = data[offset+15]
+	aip.ProgDg1 = data[offset+16]
+	aip.ProgDgLo = data[offset+17]
 
-	ad.spare4 = data[offset+18]
-	ad.spare5 = data[offset+19]
-	ad.spare6 = data[offset+20]
-	ad.spare7 = data[offset+21]
+	aip.spare4 = data[offset+18]
+	aip.spare5 = data[offset+19]
+	aip.spare6 = data[offset+20]
+	aip.spare7 = data[offset+21]
 
 	return nil
 }
 
-func (ad *ArtIpProg) MarshalBinary() ([]byte, error) {
+func (aip *ArtIpProg) MarshalBinary() ([]byte, error) {
 	data := make([]byte, 8+26)
-	copy(data[0:8], ad.ID[:])
-	binary.LittleEndian.PutUint16(data[8:10], ad.OpCode)
-	data[10] = ad.ProtVerHi
-	data[11] = ad.ProtVerLo
-	data[12] = ad.filler1
-	data[13] = ad.filler2
-	data[14] = ad.Command
-	data[15] = ad.filler4
-	data[16] = ad.ProgIpHi
-	data[17] = ad.ProgIp2
-	data[18] = ad.ProgIp1
-	data[19] = ad.ProgIpLo
-	data[20] = ad.ProgSmHi
-	data[21] = ad.ProgSm2
-	data[22] = ad.ProgSm1
-	data[23] = ad.ProgSmLo
-	data[24] = ad.ProgPortHi
-	data[25] = ad.ProgPortLo
-	data[26] = ad.ProgDgHi
-	data[27] = ad.ProgDg2
-	data[28] = ad.ProgDg1
-	data[29] = ad.ProgDgLo
-	data[30] = ad.spare4
-	data[31] = ad.spare5
-	data[32] = ad.spare6
-	data[33] = ad.spare7
+	copy(data[0:8], aip.ID[:])
+	binary.LittleEndian.PutUint16(data[8:10], aip.OpCode)
+	data[10] = aip.ProtVerHi
+	data[11] = aip.ProtVerLo
+	data[12] = aip.filler1
+	data[13] = aip.filler2
+	data[14] = aip.Command
+	data[15] = aip.filler4
+	data[16] = aip.ProgIpHi
+	data[17] = aip.ProgIp2
+	data[18] = aip.ProgIp1
+	data[19] = aip.ProgIpLo
+	data[20] = aip.ProgSmHi
+	data[21] = aip.ProgSm2
+	data[22] = aip.ProgSm1
+	data[23] = aip.ProgSmLo
+	data[24] = aip.ProgPortHi
+	data[25] = aip.ProgPortLo
+	data[26] = aip.ProgDgHi
+	data[27] = aip.ProgDg2
+	data[28] = aip.ProgDg1
+	data[29] = aip.ProgDgLo
+	data[30] = aip.spare4
+	data[31] = aip.spare5
+	data[32] = aip.spare6
+	data[33] = aip.spare7
 	return data, nil
 }

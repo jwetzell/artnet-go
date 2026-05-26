@@ -28,56 +28,56 @@ type ArtTrigger struct {
 	Data      []uint8
 }
 
-func (ap *ArtTrigger) GetOpCode() uint16 {
-	return ap.OpCode
+func (at *ArtTrigger) GetOpCode() uint16 {
+	return at.OpCode
 }
 
-func (ap *ArtTrigger) GetProtVer() uint16 {
-	return uint16(ap.ProtVerHi)<<8 + uint16(ap.ProtVerLo)
+func (at *ArtTrigger) GetProtVer() uint16 {
+	return uint16(at.ProtVerHi)<<8 + uint16(at.ProtVerLo)
 }
 
-func (ap *ArtTrigger) GetID() [8]uint8 {
-	return ap.ID
+func (at *ArtTrigger) GetID() [8]uint8 {
+	return at.ID
 }
 
-func (ap *ArtTrigger) UnmarshalBinary(data []byte) error {
+func (at *ArtTrigger) UnmarshalBinary(data []byte) error {
 
 	if len(data) < 18 {
 		return errors.New("ArtTrigger packet must be at least 18 bytes long")
 	}
 
-	copy(ap.ID[:], data[0:8])
+	copy(at.ID[:], data[0:8])
 
-	if !slices.Equal(ArtNetID[:], ap.ID[:]) {
+	if !slices.Equal(ArtNetID[:], at.ID[:]) {
 		return errors.New("ID does not match Art-Net ID")
 	}
 
-	ap.OpCode = binary.LittleEndian.Uint16(data[8:10])
-	ap.ProtVerHi = data[10]
-	ap.ProtVerLo = data[11]
+	at.OpCode = binary.LittleEndian.Uint16(data[8:10])
+	at.ProtVerHi = data[10]
+	at.ProtVerLo = data[11]
 
 	offset := 12
-	ap.filler1 = data[offset]
-	ap.filler2 = data[offset+1]
-	ap.Oem = binary.LittleEndian.Uint16(data[offset+2 : offset+4])
-	ap.Key = Key(data[offset+4])
-	ap.SubKey = data[offset+5]
-	ap.Data = make([]uint8, len(data[offset+6:]))
-	copy(ap.Data, data[offset+6:])
+	at.filler1 = data[offset]
+	at.filler2 = data[offset+1]
+	at.Oem = binary.LittleEndian.Uint16(data[offset+2 : offset+4])
+	at.Key = Key(data[offset+4])
+	at.SubKey = data[offset+5]
+	at.Data = make([]uint8, len(data[offset+6:]))
+	copy(at.Data, data[offset+6:])
 	return nil
 }
 
-func (ap *ArtTrigger) MarshalBinary() ([]byte, error) {
+func (at *ArtTrigger) MarshalBinary() ([]byte, error) {
 	data := make([]byte, 8+10)
-	copy(data[0:8], ap.ID[:])
-	binary.LittleEndian.PutUint16(data[8:10], ap.OpCode)
-	data[10] = ap.ProtVerHi
-	data[11] = ap.ProtVerLo
-	data[12] = ap.filler1
-	data[13] = ap.filler2
-	binary.LittleEndian.PutUint16(data[14:16], ap.Oem)
-	data[16] = uint8(ap.Key)
-	data[17] = ap.SubKey
-	data = append(data, ap.Data...)
+	copy(data[0:8], at.ID[:])
+	binary.LittleEndian.PutUint16(data[8:10], at.OpCode)
+	data[10] = at.ProtVerHi
+	data[11] = at.ProtVerLo
+	data[12] = at.filler1
+	data[13] = at.filler2
+	binary.LittleEndian.PutUint16(data[14:16], at.Oem)
+	data[16] = uint8(at.Key)
+	data[17] = at.SubKey
+	data = append(data, at.Data...)
 	return data, nil
 }
