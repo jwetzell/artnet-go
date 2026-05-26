@@ -25,64 +25,71 @@ type ArtDiagData struct {
 	DiagPriority DiagPriority
 	LogicalPort  uint8
 	filler3      uint8
-	Length       uint16
 	Data         []uint8
 }
 
-func (ap *ArtDiagData) GetOpCode() uint16 {
-	return ap.OpCode
+func (add *ArtDiagData) GetOpCode() uint16 {
+	return add.OpCode
 }
 
-func (ap *ArtDiagData) GetProtVer() uint16 {
-	return uint16(ap.ProtVerHi)<<8 + uint16(ap.ProtVerLo)
+func (add *ArtDiagData) GetProtVer() uint16 {
+	return uint16(add.ProtVerHi)<<8 + uint16(add.ProtVerLo)
 }
 
-func (ap *ArtDiagData) GetID() [8]uint8 {
-	return ap.ID
+func (add *ArtDiagData) GetID() [8]uint8 {
+	return add.ID
 }
 
-func (ap *ArtDiagData) UnmarshalBinary(data []byte) error {
+func (add *ArtDiagData) Length() uint16 {
+	return uint16(len(add.Data))
+}
+
+func (add *ArtDiagData) UnmarshalBinary(data []byte) error {
 
 	if len(data) < 18 {
 		return errors.New("ArtDiagData packet must be at least 18 bytes long")
 	}
 
-	copy(ap.ID[:], data[0:8])
+	copy(add.ID[:], data[0:8])
 
-	if !slices.Equal(ArtNetID[:], ap.ID[:]) {
+	if !slices.Equal(ArtNetID[:], add.ID[:]) {
 		return errors.New("ID does not match Art-Net ID")
 	}
 
-	ap.OpCode = binary.LittleEndian.Uint16(data[8:10])
-	ap.ProtVerHi = data[10]
-	ap.ProtVerLo = data[11]
+	add.OpCode = binary.LittleEndian.Uint16(data[8:10])
+	add.ProtVerHi = data[10]
+	add.ProtVerLo = data[11]
 
 	offset := 12
-	ap.filler1 = data[offset]
-	ap.DiagPriority = DiagPriority(data[offset+1])
-	ap.LogicalPort = data[offset+2]
-	ap.filler3 = data[offset+3]
-	ap.Length = binary.LittleEndian.Uint16(data[offset+4 : offset+6])
+	add.filler1 = data[offset]
+	add.DiagPriority = DiagPriority(data[offset+1])
+	add.LogicalPort = data[offset+2]
+	add.filler3 = data[offset+3]
+	dataLength := binary.LittleEndian.Uint16(data[offset+4 : offset+6])
 
-	if len(data[offset+6:]) < int(ap.Length) {
+	if len(data[offset+6:]) < int(dataLength) {
 		return errors.New("[]byte length not long enough to contain data length specified in packet")
 	}
-	ap.Data = make([]uint8, ap.Length)
-	copy(ap.Data, data[offset+6:offset+6+int(ap.Length)])
+	add.Data = make([]uint8, dataLength)
+	copy(add.Data, data[offset+6:offset+6+int(dataLength)])
 	return nil
 }
 
-func (ap *ArtDiagData) MarshalBinary() ([]byte, error) {
+func (add *ArtDiagData) MarshalBinary() ([]byte, error) {
 	data := make([]byte, 8+10)
-	copy(data[0:8], ap.ID[:])
-	binary.LittleEndian.PutUint16(data[8:10], ap.OpCode)
-	data[10] = ap.ProtVerHi
-	data[11] = ap.ProtVerLo
-	data[12] = ap.filler1
-	data[13] = uint8(ap.DiagPriority)
-	data[14] = ap.LogicalPort
-	data[15] = ap.filler3
-	binary.LittleEndian.PutUint16(data[16:18], ap.Length)
-	data = append(data, ap.Data...)
+	copy(data[0:8], add.ID[:])
+	binary.LittleEndian.PutUint16(data[8:10], add.OpCode)
+	data[10] = add.ProtVerHi
+	data[11] = add.ProtVerLo
+	data[12] = add.filler1
+	data[13] = uint8(add.DiagPriority)
+	data[14] = add.LogicalPort
+	data[15] = add.filler3
+	dataLength := uint16(len(add.Data))
+	if dataLength > 512 {
+		return nil, errors.New("data length must be less than or equal to 512 bytes")
+	}
+	binary.LittleEndian.PutUint16(data[16:18], dataLength)
+	data = append(data, add.Data...)
 	return data, nil
 }
