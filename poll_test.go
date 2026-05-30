@@ -216,3 +216,42 @@ func TestGoodArtPollUnmarshal(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkArtPollUnmarshalBinary(b *testing.B) {
+	data := []byte{0x41, 0x72, 0x74, 0x2d, 0x4e, 0x65, 0x74, 0x00, 0x00, 0x20, 0x00, 0x0e, 0x00, 0x00, 0x7f, 0xff, 0x00, 0x00, 0x53, 0x79, 0x22, 0x69}
+
+	for b.Loop() {
+		got := artnet.ArtPoll{}
+
+		err := got.UnmarshalBinary(data)
+		if err != nil {
+			b.Fatalf("failed to decode ArtPoll: %s", err)
+		}
+	}
+}
+
+func BenchmarkArtPollMarshalBinary(b *testing.B) {
+	data := artnet.ArtPoll{
+		Flags:                   0x00,
+		DiagPriority:            0x00,
+		TargetPortAddressTop:    0x7fff,
+		TargetPortAddressBottom: 0x0000,
+		EstaMan:                 0x5379,
+		Oem:                     0x2269,
+	}
+
+	for b.Loop() {
+		_, err := data.MarshalBinary()
+		if err != nil {
+			b.Fatalf("failed to encode ArtPoll: %s", err)
+		}
+	}
+}
+
+func FuzzArtPollUnmarshalBinary(f *testing.F) {
+	f.Add([]byte{0x41, 0x72, 0x74, 0x2d, 0x4e, 0x65, 0x74, 0x00, 0x00, 0x20, 0x00, 0x0e, 0x00, 0x00, 0x7f, 0xff, 0x00, 0x00, 0x53, 0x79, 0x22, 0x69})
+	f.Fuzz(func(t *testing.T, data []byte) {
+		artPoll := artnet.ArtPoll{}
+		artPoll.UnmarshalBinary(data)
+	})
+}

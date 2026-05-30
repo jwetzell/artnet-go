@@ -40,3 +40,39 @@ func TestGoodArtTodControlUnmarshal(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkArtTodControlUnmarshalBinary(b *testing.B) {
+	data := []byte{0x41, 0x72, 0x74, 0x2d, 0x4e, 0x65, 0x74, 0x00, 0x00, 0x82, 0x00, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00}
+
+	for b.Loop() {
+		got := artnet.ArtTodControl{}
+
+		err := got.UnmarshalBinary(data)
+		if err != nil {
+			b.Fatalf("failed to decode ArtTodControl: %s", err)
+		}
+	}
+}
+
+func BenchmarkArtTodControlMarshalBinary(b *testing.B) {
+	data := artnet.ArtTodControl{
+		Net:     0x00,
+		Command: artnet.AtcFlush,
+		Address: 0x00,
+	}
+
+	for b.Loop() {
+		_, err := data.MarshalBinary()
+		if err != nil {
+			b.Fatalf("failed to encode ArtTodControl: %s", err)
+		}
+	}
+}
+
+func FuzzArtTodControlUnmarshalBinary(f *testing.F) {
+	f.Add([]byte{0x41, 0x72, 0x74, 0x2d, 0x4e, 0x65, 0x74, 0x00, 0x00, 0x82, 0x00, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00})
+	f.Fuzz(func(t *testing.T, data []byte) {
+		artTodControl := artnet.ArtTodControl{}
+		artTodControl.UnmarshalBinary(data)
+	})
+}
