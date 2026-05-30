@@ -9,12 +9,12 @@ import (
 type DataRequest uint16
 
 const (
-	DrPoll         = 0x0000
-	DrUrlProduct   = 0x0001
-	DrUrlUserGuide = 0x0002
-	DrUrlSupport   = 0x0003
-	DrUrlPersUdr   = 0x0004
-	DrUrlPersGdtf  = 0x0005
+	DrPoll         DataRequest = 0x0000
+	DrUrlProduct   DataRequest = 0x0001
+	DrUrlUserGuide DataRequest = 0x0002
+	DrUrlSupport   DataRequest = 0x0003
+	DrUrlPersUdr   DataRequest = 0x0004
+	DrUrlPersGdtf  DataRequest = 0x0005
 )
 
 type ArtDataRequest struct {
@@ -24,7 +24,7 @@ type ArtDataRequest struct {
 	ProtVerLo uint8
 	EstaMan   uint16
 	Oem       uint16
-	Request   uint16
+	Request   DataRequest
 	spare     [22]byte
 }
 
@@ -59,7 +59,7 @@ func (adr *ArtDataRequest) UnmarshalBinary(data []byte) error {
 	offset := 12
 	adr.EstaMan = binary.BigEndian.Uint16(data[offset : offset+2])
 	adr.Oem = binary.BigEndian.Uint16(data[offset+2 : offset+4])
-	adr.Request = binary.BigEndian.Uint16(data[offset+4 : offset+6])
+	adr.Request = DataRequest(binary.BigEndian.Uint16(data[offset+4 : offset+6]))
 	copy(adr.spare[:], data[offset+6:offset+28])
 	return nil
 }
@@ -72,7 +72,7 @@ func (adr *ArtDataRequest) MarshalBinary() ([]byte, error) {
 	data[11] = adr.ProtVerLo
 	binary.BigEndian.PutUint16(data[12:14], adr.EstaMan)
 	binary.BigEndian.PutUint16(data[14:16], adr.Oem)
-	binary.BigEndian.PutUint16(data[16:18], adr.Request)
+	binary.BigEndian.PutUint16(data[16:18], uint16(adr.Request))
 	copy(data[18:40], adr.spare[:])
 	return data, nil
 }
