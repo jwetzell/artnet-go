@@ -57,9 +57,9 @@ func (adr *ArtDataRequest) UnmarshalBinary(data []byte) error {
 	adr.ProtVerLo = data[11]
 
 	offset := 12
-	adr.EstaMan = binary.LittleEndian.Uint16(data[offset : offset+2])
-	adr.Oem = binary.LittleEndian.Uint16(data[offset+2 : offset+4])
-	adr.Request = binary.LittleEndian.Uint16(data[offset+4 : offset+6])
+	adr.EstaMan = binary.BigEndian.Uint16(data[offset : offset+2])
+	adr.Oem = binary.BigEndian.Uint16(data[offset+2 : offset+4])
+	adr.Request = binary.BigEndian.Uint16(data[offset+4 : offset+6])
 	copy(adr.spare[:], data[offset+6:offset+28])
 	return nil
 }
@@ -70,9 +70,9 @@ func (adr *ArtDataRequest) MarshalBinary() ([]byte, error) {
 	binary.LittleEndian.PutUint16(data[8:10], adr.OpCode)
 	data[10] = adr.ProtVerHi
 	data[11] = adr.ProtVerLo
-	binary.LittleEndian.PutUint16(data[12:14], adr.EstaMan)
-	binary.LittleEndian.PutUint16(data[14:16], adr.Oem)
-	binary.LittleEndian.PutUint16(data[16:18], adr.Request)
+	binary.BigEndian.PutUint16(data[12:14], adr.EstaMan)
+	binary.BigEndian.PutUint16(data[14:16], adr.Oem)
+	binary.BigEndian.PutUint16(data[16:18], adr.Request)
 	copy(data[18:40], adr.spare[:])
 	return data, nil
 }

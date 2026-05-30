@@ -55,9 +55,9 @@ func (ac *ArtCommand) UnmarshalBinary(data []byte) error {
 	ac.ProtVerLo = data[11]
 
 	offset := 12
-	ac.EstaMan = binary.LittleEndian.Uint16(data[offset : offset+2])
+	ac.EstaMan = binary.BigEndian.Uint16(data[offset : offset+2])
 
-	dataLength := int(binary.LittleEndian.Uint16(data[offset+2 : offset+4]))
+	dataLength := int(binary.BigEndian.Uint16(data[offset+2 : offset+4]))
 
 	if len(data[offset+4:]) < dataLength {
 		return errors.New("[]byte length not long enough to contain data length specified in packet")
@@ -73,12 +73,12 @@ func (ac *ArtCommand) MarshalBinary() ([]byte, error) {
 	binary.LittleEndian.PutUint16(data[8:10], ac.OpCode)
 	data[10] = ac.ProtVerHi
 	data[11] = ac.ProtVerLo
-	binary.LittleEndian.PutUint16(data[12:14], ac.EstaMan)
+	binary.BigEndian.PutUint16(data[12:14], ac.EstaMan)
 	dataLength := uint16(len(ac.Data))
 	if dataLength > 512 {
 		return nil, errors.New("data length must be less than or equal to 512 bytes")
 	}
-	binary.LittleEndian.PutUint16(data[14:16], dataLength)
+	binary.BigEndian.PutUint16(data[14:16], dataLength)
 	data = append(data, ac.Data...)
 	return data, nil
 }

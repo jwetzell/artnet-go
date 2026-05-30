@@ -56,7 +56,7 @@ func (an *ArtNzs) UnmarshalBinary(data []byte) error {
 	an.SubUni = data[offset+2]
 	an.Net = data[offset+3]
 
-	dataLength := int(binary.LittleEndian.Uint16(data[offset+4 : offset+6]))
+	dataLength := int(binary.BigEndian.Uint16(data[offset+4 : offset+6]))
 
 	if len(data[offset+6:]) < dataLength {
 		return errors.New("[]byte length not long enough to contain data length specified in packet")
@@ -80,7 +80,7 @@ func (an *ArtNzs) MarshalBinary() ([]byte, error) {
 	if dataLength > 512 {
 		return nil, errors.New("data length must be less than or equal to 512 bytes")
 	}
-	binary.LittleEndian.PutUint16(data[16:18], dataLength)
+	binary.BigEndian.PutUint16(data[16:18], dataLength)
 	copy(data[18:], an.Data)
 	return data, nil
 }

@@ -65,7 +65,7 @@ func (add *ArtDiagData) UnmarshalBinary(data []byte) error {
 	add.DiagPriority = DiagPriority(data[offset+1])
 	add.LogicalPort = data[offset+2]
 	add.filler3 = data[offset+3]
-	dataLength := binary.LittleEndian.Uint16(data[offset+4 : offset+6])
+	dataLength := binary.BigEndian.Uint16(data[offset+4 : offset+6])
 
 	if len(data[offset+6:]) < int(dataLength) {
 		return errors.New("[]byte length not long enough to contain data length specified in packet")
@@ -89,7 +89,7 @@ func (add *ArtDiagData) MarshalBinary() ([]byte, error) {
 	if dataLength > 512 {
 		return nil, errors.New("data length must be less than or equal to 512 bytes")
 	}
-	binary.LittleEndian.PutUint16(data[16:18], dataLength)
+	binary.BigEndian.PutUint16(data[16:18], dataLength)
 	data = append(data, add.Data...)
 	return data, nil
 }
