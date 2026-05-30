@@ -185,6 +185,16 @@ func Decode(bytes []byte) (ArtNetPacket, error) {
 		}
 
 		return &artTodRequest, nil
+	case OpTodControl:
+		artTodControl := ArtTodControl{}
+
+		err := artTodControl.UnmarshalBinary(bytes)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return &artTodControl, nil
 	default:
 		return nil, fmt.Errorf("unhandled opcode: %#x", opCode)
 	}
