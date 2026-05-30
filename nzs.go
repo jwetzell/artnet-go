@@ -7,10 +7,6 @@ import (
 )
 
 type ArtNzs struct {
-	ID        [8]uint8
-	OpCode    uint16
-	ProtVerHi uint8
-	ProtVerLo uint8
 	Sequence  uint8
 	StartCode uint8
 	SubUni    uint8
@@ -19,19 +15,7 @@ type ArtNzs struct {
 }
 
 func (an *ArtNzs) GetOpCode() uint16 {
-	return an.OpCode
-}
-
-func (an *ArtNzs) GetProtVer() uint16 {
-	return uint16(an.ProtVerHi)<<8 + uint16(an.ProtVerLo)
-}
-
-func (an *ArtNzs) GetID() [8]uint8 {
-	return an.ID
-}
-
-func (an *ArtNzs) Length() uint16 {
-	return uint16(len(an.Data))
+	return OpNzs
 }
 
 func (an *ArtNzs) UnmarshalBinary(data []byte) error {
@@ -40,15 +24,14 @@ func (an *ArtNzs) UnmarshalBinary(data []byte) error {
 		return errors.New("ArtNzs packet must be at least 18 bytes long")
 	}
 
-	copy(an.ID[:], data[0:8])
-
-	if !slices.Equal(ArtNetID[:], an.ID[:]) {
+	if !slices.Equal(ArtNetID[:], data[0:8]) {
 		return errors.New("ID does not match Art-Net ID")
 	}
 
-	an.OpCode = binary.LittleEndian.Uint16(data[8:10])
-	an.ProtVerHi = data[10]
-	an.ProtVerLo = data[11]
+	opCode := binary.LittleEndian.Uint16(data[8:10])
+	if opCode != OpNzs {
+		return errors.New("packet does not have the correct OpCode for an ArtNzs packet")
+	}
 
 	offset := 12
 	an.Sequence = data[offset]
@@ -68,10 +51,10 @@ func (an *ArtNzs) UnmarshalBinary(data []byte) error {
 
 func (an *ArtNzs) MarshalBinary() ([]byte, error) {
 	data := make([]byte, 8+8)
-	copy(data[0:8], an.ID[:])
-	binary.LittleEndian.PutUint16(data[8:10], an.OpCode)
-	data[10] = an.ProtVerHi
-	data[11] = an.ProtVerLo
+	copy(data[0:8], ArtNetID[:])
+	binary.LittleEndian.PutUint16(data[8:10], OpNzs)
+	data[10] = 0
+	data[11] = 14
 	data[12] = an.Sequence
 	data[13] = an.StartCode
 	data[14] = an.SubUni

@@ -7,10 +7,6 @@ import (
 )
 
 type ArtPoll struct {
-	ID           [8]uint8
-	OpCode       uint16
-	ProtVerHi    uint8
-	ProtVerLo    uint8
 	Flags        uint8
 	DiagPriority uint8
 	// TODO(jwetzell): support extended poll fields
@@ -21,15 +17,7 @@ type ArtPoll struct {
 }
 
 func (ap *ArtPoll) GetOpCode() uint16 {
-	return ap.OpCode
-}
-
-func (ap *ArtPoll) GetProtVer() uint16 {
-	return uint16(ap.ProtVerHi)<<8 + uint16(ap.ProtVerLo)
-}
-
-func (ap *ArtPoll) GetID() [8]uint8 {
-	return ap.ID
+	return OpPoll
 }
 
 func (ap *ArtPoll) UnmarshalBinary(data []byte) error {
@@ -38,15 +26,14 @@ func (ap *ArtPoll) UnmarshalBinary(data []byte) error {
 		return errors.New("ArtPoll packet must be at least 14 bytes long")
 	}
 
-	copy(ap.ID[:], data[0:8])
-
-	if !slices.Equal(ArtNetID[:], ap.ID[:]) {
+	if !slices.Equal(ArtNetID[:], data[0:8]) {
 		return errors.New("ID does not match Art-Net ID")
 	}
 
-	ap.OpCode = binary.LittleEndian.Uint16(data[8:10])
-	ap.ProtVerHi = data[10]
-	ap.ProtVerLo = data[11]
+	opCode := binary.LittleEndian.Uint16(data[8:10])
+	if opCode != OpPoll {
+		return errors.New("packet does not have the correct OpCode for an ArtPoll packet")
+	}
 
 	offset := 12
 	ap.Flags = data[offset]
@@ -69,10 +56,10 @@ func (ap *ArtPoll) UnmarshalBinary(data []byte) error {
 
 func (ap *ArtPoll) MarshalBinary() ([]byte, error) {
 	data := make([]byte, 8+14)
-	copy(data[0:8], ap.ID[:])
-	binary.LittleEndian.PutUint16(data[8:10], ap.OpCode)
-	data[10] = ap.ProtVerHi
-	data[11] = ap.ProtVerLo
+	copy(data[0:8], ArtNetID[:])
+	binary.LittleEndian.PutUint16(data[8:10], OpPoll)
+	data[10] = 0
+	data[11] = 14
 	data[12] = ap.Flags
 	data[13] = ap.DiagPriority
 	binary.BigEndian.PutUint16(data[14:16], ap.TargetPortAddressTop)

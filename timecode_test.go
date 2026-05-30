@@ -17,17 +17,12 @@ func TestGoodArtTimeCodeUnmarshal(t *testing.T) {
 			Name: "Basic timecode",
 			Data: []byte{65, 114, 116, 45, 78, 101, 116, 0, 0, 151, 0, 14, 0, 0, 11, 17, 3, 0, 0},
 			Expected: &artnet.ArtTimeCode{
-				ID:        [8]uint8{'A', 'r', 't', '-', 'N', 'e', 't', 0x00},
-				OpCode:    artnet.OpTimeCode,
-				ProtVerHi: 0,
-				ProtVerLo: 14,
-				Filler1:   0,
-				StreamId:  0,
-				Frames:    11,
-				Seconds:   17,
-				Minutes:   3,
-				Hours:     0,
-				Type:      0,
+				StreamId: 0,
+				Frames:   11,
+				Seconds:  17,
+				Minutes:  3,
+				Hours:    0,
+				Type:     0,
 			},
 		},
 	}
@@ -63,17 +58,12 @@ func BenchmarkArtTimeCodeUnmarshalBinary(b *testing.B) {
 
 func BenchmarkArtTimeCodeMarshalBinary(b *testing.B) {
 	data := artnet.ArtTimeCode{
-		ID:        [8]uint8{'A', 'r', 't', '-', 'N', 'e', 't', 0x00},
-		OpCode:    artnet.OpTimeCode,
-		ProtVerHi: 0,
-		ProtVerLo: 14,
-		Filler1:   0,
-		StreamId:  0,
-		Frames:    11,
-		Seconds:   17,
-		Minutes:   3,
-		Hours:     0,
-		Type:      0,
+		StreamId: 0,
+		Frames:   11,
+		Seconds:  17,
+		Minutes:  3,
+		Hours:    0,
+		Type:     0,
 	}
 
 	for b.Loop() {

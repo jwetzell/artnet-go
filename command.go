@@ -14,28 +14,12 @@ const (
 )
 
 type ArtCommand struct {
-	ID        [8]uint8
-	OpCode    uint16
-	ProtVerHi uint8
-	ProtVerLo uint8
-	EstaMan   uint16
-	Data      []uint8
+	EstaMan uint16
+	Data    []uint8
 }
 
 func (ac *ArtCommand) GetOpCode() uint16 {
-	return ac.OpCode
-}
-
-func (ac *ArtCommand) GetProtVer() uint16 {
-	return uint16(ac.ProtVerHi)<<8 + uint16(ac.ProtVerLo)
-}
-
-func (ac *ArtCommand) GetID() [8]uint8 {
-	return ac.ID
-}
-
-func (ac *ArtCommand) Length() uint16 {
-	return uint16(len(ac.Data))
+	return OpCommand
 }
 
 func (ac *ArtCommand) UnmarshalBinary(data []byte) error {
@@ -44,15 +28,14 @@ func (ac *ArtCommand) UnmarshalBinary(data []byte) error {
 		return errors.New("ArtCommand packet must be at least 16 bytes long")
 	}
 
-	copy(ac.ID[:], data[0:8])
-
-	if !slices.Equal(ArtNetID[:], ac.ID[:]) {
+	if !slices.Equal(ArtNetID[:], data[0:8]) {
 		return errors.New("ID does not match Art-Net ID")
 	}
 
-	ac.OpCode = binary.LittleEndian.Uint16(data[8:10])
-	ac.ProtVerHi = data[10]
-	ac.ProtVerLo = data[11]
+	opCode := binary.LittleEndian.Uint16(data[8:10])
+	if opCode != OpCommand {
+		return errors.New("packet does not have the correct OpCode for an ArtCommand packet")
+	}
 
 	offset := 12
 	ac.EstaMan = binary.BigEndian.Uint16(data[offset : offset+2])
@@ -69,10 +52,10 @@ func (ac *ArtCommand) UnmarshalBinary(data []byte) error {
 
 func (ac *ArtCommand) MarshalBinary() ([]byte, error) {
 	data := make([]byte, 8+8)
-	copy(data[0:8], ac.ID[:])
-	binary.LittleEndian.PutUint16(data[8:10], ac.OpCode)
-	data[10] = ac.ProtVerHi
-	data[11] = ac.ProtVerLo
+	copy(data[0:8], ArtNetID[:])
+	binary.LittleEndian.PutUint16(data[8:10], OpCommand)
+	data[10] = 0
+	data[11] = 14
 	binary.BigEndian.PutUint16(data[12:14], ac.EstaMan)
 	dataLength := uint16(len(ac.Data))
 	if dataLength > 512 {

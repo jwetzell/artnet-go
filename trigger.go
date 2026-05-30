@@ -16,8 +16,8 @@ const (
 )
 
 type ArtTrigger struct {
-	ID        [8]uint8
-	OpCode    uint16
+	id        [8]uint8
+	opCode    uint16
 	ProtVerHi uint8
 	ProtVerLo uint8
 	filler1   uint8
@@ -29,15 +29,7 @@ type ArtTrigger struct {
 }
 
 func (at *ArtTrigger) GetOpCode() uint16 {
-	return at.OpCode
-}
-
-func (at *ArtTrigger) GetProtVer() uint16 {
-	return uint16(at.ProtVerHi)<<8 + uint16(at.ProtVerLo)
-}
-
-func (at *ArtTrigger) GetID() [8]uint8 {
-	return at.ID
+	return OpTrigger
 }
 
 func (at *ArtTrigger) UnmarshalBinary(data []byte) error {
@@ -46,13 +38,16 @@ func (at *ArtTrigger) UnmarshalBinary(data []byte) error {
 		return errors.New("ArtTrigger packet must be at least 18 bytes long")
 	}
 
-	copy(at.ID[:], data[0:8])
+	copy(at.id[:], data[0:8])
 
-	if !slices.Equal(ArtNetID[:], at.ID[:]) {
+	if !slices.Equal(ArtNetID[:], at.id[:]) {
 		return errors.New("ID does not match Art-Net ID")
 	}
 
-	at.OpCode = binary.LittleEndian.Uint16(data[8:10])
+	at.opCode = binary.LittleEndian.Uint16(data[8:10])
+	if at.opCode != OpTrigger {
+		return errors.New("packet does not have the correct OpCode for an ArtTrigger packet")
+	}
 	at.ProtVerHi = data[10]
 	at.ProtVerLo = data[11]
 
@@ -69,8 +64,8 @@ func (at *ArtTrigger) UnmarshalBinary(data []byte) error {
 
 func (at *ArtTrigger) MarshalBinary() ([]byte, error) {
 	data := make([]byte, 8+10)
-	copy(data[0:8], at.ID[:])
-	binary.LittleEndian.PutUint16(data[8:10], at.OpCode)
+	copy(data[0:8], at.id[:])
+	binary.LittleEndian.PutUint16(data[8:10], at.opCode)
 	data[10] = at.ProtVerHi
 	data[11] = at.ProtVerLo
 	data[12] = at.filler1

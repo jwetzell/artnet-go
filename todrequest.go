@@ -13,34 +13,22 @@ const (
 )
 
 type ArtTodRequest struct {
-	ID        [8]uint8
-	OpCode    uint16
-	ProtVerHi uint8
-	ProtVerLo uint8
-	filler1   uint8
-	filler2   uint8
-	spare1    uint8
-	spare2    uint8
-	spare3    uint8
-	spare4    uint8
-	spare5    uint8
-	spare6    uint8
-	spare7    uint8
-	Net       uint8
-	Command   TodRequestCommand
-	Address   []uint8
+	filler1 uint8
+	filler2 uint8
+	spare1  uint8
+	spare2  uint8
+	spare3  uint8
+	spare4  uint8
+	spare5  uint8
+	spare6  uint8
+	spare7  uint8
+	Net     uint8
+	Command TodRequestCommand
+	Address []uint8
 }
 
 func (adr *ArtTodRequest) GetOpCode() uint16 {
-	return adr.OpCode
-}
-
-func (adr *ArtTodRequest) GetProtVer() uint16 {
-	return uint16(adr.ProtVerHi)<<8 + uint16(adr.ProtVerLo)
-}
-
-func (adr *ArtTodRequest) GetID() [8]uint8 {
-	return adr.ID
+	return OpTodRequest
 }
 
 func (adr *ArtTodRequest) UnmarshalBinary(data []byte) error {
@@ -49,15 +37,14 @@ func (adr *ArtTodRequest) UnmarshalBinary(data []byte) error {
 		return errors.New("ArtTodRequest packet must be at least 32 bytes long")
 	}
 
-	copy(adr.ID[:], data[0:8])
-
-	if !slices.Equal(ArtNetID[:], adr.ID[:]) {
+	if !slices.Equal(ArtNetID[:], data[0:8]) {
 		return errors.New("ID does not match Art-Net ID")
 	}
 
-	adr.OpCode = binary.LittleEndian.Uint16(data[8:10])
-	adr.ProtVerHi = data[10]
-	adr.ProtVerLo = data[11]
+	opCode := binary.LittleEndian.Uint16(data[8:10])
+	if opCode != OpTodRequest {
+		return errors.New("packet does not have the correct OpCode for an ArtTodRequest packet")
+	}
 
 	offset := 12
 	adr.filler1 = data[offset]
@@ -85,10 +72,10 @@ func (adr *ArtTodRequest) MarshalBinary() ([]byte, error) {
 		return nil, errors.New("address count must not be greater than 32")
 	}
 	data := make([]byte, 8+16+len(adr.Address))
-	copy(data[0:8], adr.ID[:])
-	binary.LittleEndian.PutUint16(data[8:10], adr.OpCode)
-	data[10] = adr.ProtVerHi
-	data[11] = adr.ProtVerLo
+	copy(data[0:8], ArtNetID[:])
+	binary.LittleEndian.PutUint16(data[8:10], OpTodRequest)
+	data[10] = 0
+	data[11] = 14
 	data[12] = adr.filler1
 	data[13] = adr.filler2
 	data[14] = adr.spare1

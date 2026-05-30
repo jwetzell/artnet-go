@@ -17,10 +17,6 @@ const (
 )
 
 type ArtDiagData struct {
-	ID           [8]uint8
-	OpCode       uint16
-	ProtVerHi    uint8
-	ProtVerLo    uint8
 	filler1      uint8
 	DiagPriority DiagPriority
 	LogicalPort  uint8
@@ -29,19 +25,7 @@ type ArtDiagData struct {
 }
 
 func (add *ArtDiagData) GetOpCode() uint16 {
-	return add.OpCode
-}
-
-func (add *ArtDiagData) GetProtVer() uint16 {
-	return uint16(add.ProtVerHi)<<8 + uint16(add.ProtVerLo)
-}
-
-func (add *ArtDiagData) GetID() [8]uint8 {
-	return add.ID
-}
-
-func (add *ArtDiagData) Length() uint16 {
-	return uint16(len(add.Data))
+	return OpDiagData
 }
 
 func (add *ArtDiagData) UnmarshalBinary(data []byte) error {
@@ -50,15 +34,14 @@ func (add *ArtDiagData) UnmarshalBinary(data []byte) error {
 		return errors.New("ArtDiagData packet must be at least 18 bytes long")
 	}
 
-	copy(add.ID[:], data[0:8])
-
-	if !slices.Equal(ArtNetID[:], add.ID[:]) {
+	if !slices.Equal(ArtNetID[:], data[0:8]) {
 		return errors.New("ID does not match Art-Net ID")
 	}
 
-	add.OpCode = binary.LittleEndian.Uint16(data[8:10])
-	add.ProtVerHi = data[10]
-	add.ProtVerLo = data[11]
+	opCode := binary.LittleEndian.Uint16(data[8:10])
+	if opCode != OpDiagData {
+		return errors.New("packet does not have the correct OpCode for an ArtDiagData packet")
+	}
 
 	offset := 12
 	add.filler1 = data[offset]
@@ -77,10 +60,10 @@ func (add *ArtDiagData) UnmarshalBinary(data []byte) error {
 
 func (add *ArtDiagData) MarshalBinary() ([]byte, error) {
 	data := make([]byte, 8+10)
-	copy(data[0:8], add.ID[:])
-	binary.LittleEndian.PutUint16(data[8:10], add.OpCode)
-	data[10] = add.ProtVerHi
-	data[11] = add.ProtVerLo
+	copy(data[0:8], ArtNetID[:])
+	binary.LittleEndian.PutUint16(data[8:10], OpDiagData)
+	data[10] = 0
+	data[11] = 14
 	data[12] = add.filler1
 	data[13] = uint8(add.DiagPriority)
 	data[14] = add.LogicalPort

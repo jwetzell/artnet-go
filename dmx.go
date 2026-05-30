@@ -7,31 +7,15 @@ import (
 )
 
 type ArtDmx struct {
-	ID        [8]uint8
-	OpCode    uint16
-	ProtVerHi uint8
-	ProtVerLo uint8
-	Sequence  uint8
-	Physical  uint8
-	SubUni    uint8
-	Net       uint8
-	Data      []uint8
+	Sequence uint8
+	Physical uint8
+	SubUni   uint8
+	Net      uint8
+	Data     []uint8
 }
 
 func (ad *ArtDmx) GetOpCode() uint16 {
-	return ad.OpCode
-}
-
-func (ad *ArtDmx) GetProtVer() uint16 {
-	return uint16(ad.ProtVerHi)<<8 + uint16(ad.ProtVerLo)
-}
-
-func (ad *ArtDmx) GetID() [8]uint8 {
-	return ad.ID
-}
-
-func (ad *ArtDmx) Length() uint16 {
-	return uint16(len(ad.Data))
+	return OpDmx
 }
 
 func (ad *ArtDmx) UnmarshalBinary(data []byte) error {
@@ -39,15 +23,14 @@ func (ad *ArtDmx) UnmarshalBinary(data []byte) error {
 		return errors.New("ArtDmx packet must be at least 18 bytes long")
 	}
 
-	copy(ad.ID[:], data[0:8])
-
-	if !slices.Equal(ArtNetID[:], ad.ID[:]) {
+	if !slices.Equal(ArtNetID[:], data[0:8]) {
 		return errors.New("ID does not match Art-Net ID")
 	}
 
-	ad.OpCode = binary.LittleEndian.Uint16(data[8:10])
-	ad.ProtVerHi = data[10]
-	ad.ProtVerLo = data[11]
+	opCode := binary.LittleEndian.Uint16(data[8:10])
+	if opCode != OpDmx {
+		return errors.New("packet does not have the correct OpCode for an ArtDmx packet")
+	}
 
 	offset := 12
 
@@ -70,16 +53,17 @@ func (ad *ArtDmx) UnmarshalBinary(data []byte) error {
 }
 
 func (ad *ArtDmx) MarshalBinary() ([]byte, error) {
-	data := make([]byte, 8+10+ad.Length())
-	copy(data[0:8], ad.ID[:])
-	binary.LittleEndian.PutUint16(data[8:10], ad.OpCode)
-	data[10] = ad.ProtVerHi
-	data[11] = ad.ProtVerLo
+	// TODO(jwetzell): check max data length
+	data := make([]byte, 8+10+len(ad.Data))
+	copy(data[0:8], ArtNetID[:])
+	binary.LittleEndian.PutUint16(data[8:10], OpDmx)
+	data[10] = 0
+	data[11] = 14
 	data[12] = ad.Sequence
 	data[13] = ad.Physical
 	data[14] = ad.SubUni
 	data[15] = ad.Net
-	binary.BigEndian.PutUint16(data[16:18], ad.Length())
+	binary.BigEndian.PutUint16(data[16:18], uint16(len(ad.Data)))
 	copy(data[18:], ad.Data)
 	return data, nil
 }

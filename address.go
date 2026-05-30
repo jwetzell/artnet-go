@@ -85,10 +85,6 @@ const (
 )
 
 type ArtAddress struct {
-	ID          [8]uint8
-	OpCode      uint16
-	ProtVerHi   uint8
-	ProtVerLo   uint8
 	NetSwitch   uint8
 	BindIndex   uint8
 	PortName    [18]uint8
@@ -101,15 +97,7 @@ type ArtAddress struct {
 }
 
 func (aa *ArtAddress) GetOpCode() uint16 {
-	return aa.OpCode
-}
-
-func (aa *ArtAddress) GetProtVer() uint16 {
-	return uint16(aa.ProtVerHi)<<8 + uint16(aa.ProtVerLo)
-}
-
-func (aa *ArtAddress) GetID() [8]uint8 {
-	return aa.ID
+	return OpAddress
 }
 
 func (aa *ArtAddress) UnmarshalBinary(data []byte) error {
@@ -117,16 +105,14 @@ func (aa *ArtAddress) UnmarshalBinary(data []byte) error {
 		return errors.New("ArtAddress packet must be at least 107 bytes long")
 	}
 
-	copy(aa.ID[:], data[0:8])
-
-	if !slices.Equal(ArtNetID[:], aa.ID[:]) {
+	if !slices.Equal(ArtNetID[:], data[0:8]) {
 		return errors.New("ID does not match Art-Net ID")
 	}
 
-	aa.OpCode = binary.LittleEndian.Uint16(data[8:10])
-	aa.ProtVerHi = data[10]
-	aa.ProtVerLo = data[11]
-
+	opCode := binary.LittleEndian.Uint16(data[8:10])
+	if opCode != OpAddress {
+		return errors.New("packet does not have the correct OpCode for an ArtAddress packet")
+	}
 	offset := 12
 	aa.NetSwitch = data[offset]
 	aa.BindIndex = data[offset+1]
@@ -141,11 +127,11 @@ func (aa *ArtAddress) UnmarshalBinary(data []byte) error {
 }
 
 func (aa *ArtAddress) MarshalBinary() ([]byte, error) {
-	data := make([]byte, 8+11)
-	copy(data[0:8], aa.ID[:])
-	binary.LittleEndian.PutUint16(data[8:10], aa.OpCode)
-	data[10] = aa.ProtVerHi
-	data[11] = aa.ProtVerLo
+	data := make([]byte, 8+99)
+	copy(data[0:8], ArtNetID[:])
+	binary.LittleEndian.PutUint16(data[8:10], OpAddress)
+	data[10] = 0
+	data[11] = 14
 	offset := 12
 	data[offset] = aa.NetSwitch
 	data[offset+1] = aa.BindIndex

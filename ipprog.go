@@ -7,10 +7,6 @@ import (
 )
 
 type ArtIpProg struct {
-	ID         [8]uint8
-	OpCode     uint16
-	ProtVerHi  uint8
-	ProtVerLo  uint8
 	filler1    uint8
 	filler2    uint8
 	Command    uint8
@@ -36,15 +32,7 @@ type ArtIpProg struct {
 }
 
 func (aip *ArtIpProg) GetOpCode() uint16 {
-	return aip.OpCode
-}
-
-func (aip *ArtIpProg) GetProtVer() uint16 {
-	return uint16(aip.ProtVerHi)<<8 + uint16(aip.ProtVerLo)
-}
-
-func (aip *ArtIpProg) GetID() [8]uint8 {
-	return aip.ID
+	return OpIpProg
 }
 
 func (aip *ArtIpProg) UnmarshalBinary(data []byte) error {
@@ -52,15 +40,14 @@ func (aip *ArtIpProg) UnmarshalBinary(data []byte) error {
 		return errors.New("ArtIpProg packet must be at least 18 bytes long")
 	}
 
-	copy(aip.ID[:], data[0:8])
-
-	if !slices.Equal(ArtNetID[:], aip.ID[:]) {
+	if !slices.Equal(ArtNetID[:], data[0:8]) {
 		return errors.New("ID does not match Art-Net ID")
 	}
 
-	aip.OpCode = binary.LittleEndian.Uint16(data[8:10])
-	aip.ProtVerHi = data[10]
-	aip.ProtVerLo = data[11]
+	opCode := binary.LittleEndian.Uint16(data[8:10])
+	if opCode != OpIpProg {
+		return errors.New("packet does not have the correct OpCode for an ArtIpProg packet")
+	}
 
 	offset := 12
 
@@ -97,10 +84,10 @@ func (aip *ArtIpProg) UnmarshalBinary(data []byte) error {
 
 func (aip *ArtIpProg) MarshalBinary() ([]byte, error) {
 	data := make([]byte, 8+26)
-	copy(data[0:8], aip.ID[:])
-	binary.LittleEndian.PutUint16(data[8:10], aip.OpCode)
-	data[10] = aip.ProtVerHi
-	data[11] = aip.ProtVerLo
+	copy(data[0:8], ArtNetID[:])
+	binary.LittleEndian.PutUint16(data[8:10], OpIpProg)
+	data[10] = 0
+	data[11] = 14
 	data[12] = aip.filler1
 	data[13] = aip.filler2
 	data[14] = aip.Command

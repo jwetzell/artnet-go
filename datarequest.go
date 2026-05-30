@@ -18,26 +18,14 @@ const (
 )
 
 type ArtDataRequest struct {
-	ID        [8]uint8
-	OpCode    uint16
-	ProtVerHi uint8
-	ProtVerLo uint8
-	EstaMan   uint16
-	Oem       uint16
-	Request   DataRequest
-	spare     [22]byte
+	EstaMan uint16
+	Oem     uint16
+	Request DataRequest
+	spare   [22]byte
 }
 
 func (adr *ArtDataRequest) GetOpCode() uint16 {
-	return adr.OpCode
-}
-
-func (adr *ArtDataRequest) GetProtVer() uint16 {
-	return uint16(adr.ProtVerHi)<<8 + uint16(adr.ProtVerLo)
-}
-
-func (adr *ArtDataRequest) GetID() [8]uint8 {
-	return adr.ID
+	return OpDataRequest
 }
 
 func (adr *ArtDataRequest) UnmarshalBinary(data []byte) error {
@@ -46,15 +34,14 @@ func (adr *ArtDataRequest) UnmarshalBinary(data []byte) error {
 		return errors.New("ArtDataRequest packet must be at least 40 bytes long")
 	}
 
-	copy(adr.ID[:], data[0:8])
-
-	if !slices.Equal(ArtNetID[:], adr.ID[:]) {
+	if !slices.Equal(ArtNetID[:], data[0:8]) {
 		return errors.New("ID does not match Art-Net ID")
 	}
 
-	adr.OpCode = binary.LittleEndian.Uint16(data[8:10])
-	adr.ProtVerHi = data[10]
-	adr.ProtVerLo = data[11]
+	opCode := binary.LittleEndian.Uint16(data[8:10])
+	if opCode != OpDataRequest {
+		return errors.New("packet does not have the correct OpCode for an ArtDataRequest packet")
+	}
 
 	offset := 12
 	adr.EstaMan = binary.BigEndian.Uint16(data[offset : offset+2])
@@ -66,10 +53,10 @@ func (adr *ArtDataRequest) UnmarshalBinary(data []byte) error {
 
 func (adr *ArtDataRequest) MarshalBinary() ([]byte, error) {
 	data := make([]byte, 8+32)
-	copy(data[0:8], adr.ID[:])
-	binary.LittleEndian.PutUint16(data[8:10], adr.OpCode)
-	data[10] = adr.ProtVerHi
-	data[11] = adr.ProtVerLo
+	copy(data[0:8], ArtNetID[:])
+	binary.LittleEndian.PutUint16(data[8:10], OpDataRequest)
+	data[10] = 0
+	data[11] = 14
 	binary.BigEndian.PutUint16(data[12:14], adr.EstaMan)
 	binary.BigEndian.PutUint16(data[14:16], adr.Oem)
 	binary.BigEndian.PutUint16(data[16:18], uint16(adr.Request))

@@ -7,8 +7,6 @@ import (
 )
 
 type ArtPollReply struct {
-	ID          [8]uint8
-	OpCode      uint16
 	IPAddress   [4]uint8
 	Port        uint16
 	VersInfo    uint16
@@ -49,11 +47,7 @@ type ArtPollReply struct {
 }
 
 func (ap *ArtPollReply) GetOpCode() uint16 {
-	return ap.OpCode
-}
-
-func (ap *ArtPollReply) GetID() [8]uint8 {
-	return ap.ID
+	return OpPollReply
 }
 
 func (ap *ArtPollReply) UnmarshalBinary(data []byte) error {
@@ -62,13 +56,15 @@ func (ap *ArtPollReply) UnmarshalBinary(data []byte) error {
 		return errors.New("ArtPollReply packet must be at least 207 bytes long")
 	}
 
-	copy(ap.ID[:], data[0:8])
-
-	if !slices.Equal(ArtNetID[:], ap.ID[:]) {
+	if !slices.Equal(ArtNetID[:], data[0:8]) {
 		return errors.New("ID does not match Art-Net ID")
 	}
 
-	ap.OpCode = binary.LittleEndian.Uint16(data[8:10])
+	opCode := binary.LittleEndian.Uint16(data[8:10])
+	if opCode != OpPollReply {
+		return errors.New("packet does not have the correct OpCode for an ArtPollReply packet")
+	}
+
 	ap.IPAddress[0] = data[10]
 	ap.IPAddress[1] = data[11]
 	ap.IPAddress[2] = data[12]
@@ -106,8 +102,8 @@ func (ap *ArtPollReply) MarshalBinary() ([]byte, error) {
 		return nil, errors.New("DefaultRespUID must not be greater than 281474976710655")
 	}
 	data := make([]byte, 8+230)
-	copy(data[0:8], ap.ID[:])
-	binary.LittleEndian.PutUint16(data[8:10], ap.OpCode)
+	copy(data[0:8], ArtNetID[:])
+	binary.LittleEndian.PutUint16(data[8:10], OpPollReply)
 	data[10] = ap.IPAddress[0]
 	data[11] = ap.IPAddress[1]
 	data[12] = ap.IPAddress[2]
