@@ -32,7 +32,7 @@ type ArtTodControl struct {
 }
 
 func (adr *ArtTodControl) GetOpCode() uint16 {
-	return OpTodRequest
+	return OpTodControl
 }
 
 func (adr *ArtTodControl) UnmarshalBinary(data []byte) error {
@@ -46,7 +46,7 @@ func (adr *ArtTodControl) UnmarshalBinary(data []byte) error {
 	}
 
 	opCode := binary.LittleEndian.Uint16(data[8:10])
-	if opCode != OpTodRequest {
+	if opCode != OpTodControl {
 		return errors.New("packet does not have the correct OpCode for an ArtTodControl packet")
 	}
 
@@ -69,7 +69,7 @@ func (adr *ArtTodControl) UnmarshalBinary(data []byte) error {
 func (adr *ArtTodControl) MarshalBinary() ([]byte, error) {
 	data := make([]byte, 8+16)
 	copy(data[0:8], ArtNetID[:])
-	binary.LittleEndian.PutUint16(data[8:10], OpTodRequest)
+	binary.LittleEndian.PutUint16(data[8:10], OpTodControl)
 	data[10] = 0
 	data[11] = 14
 	data[12] = adr.filler1
