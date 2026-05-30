@@ -23,10 +23,6 @@ func main() {
 	defer connection.Close()
 	buffer := make([]byte, 1024)
 
-	if err != nil {
-		panic(err)
-	}
-
 	for {
 		bytesRead, _, err := connection.ReadFromUDP(buffer)
 
