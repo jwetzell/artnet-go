@@ -30,3 +30,14 @@ func TestGoodArtSyncUnmarshal(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkArtSyncMarshalBinary(b *testing.B) {
+	data := artnet.ArtSync{}
+
+	for b.Loop() {
+		_, err := data.MarshalBinary()
+		if err != nil {
+			b.Fatalf("failed to encode ArtSync: %s", err)
+		}
+	}
+}

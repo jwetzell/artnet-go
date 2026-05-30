@@ -30,3 +30,14 @@ func TestGoodArtIpProgReplyUnmarshal(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkArtIpProgReplyMarshalBinary(b *testing.B) {
+	data := artnet.ArtIpProgReply{}
+
+	for b.Loop() {
+		_, err := data.MarshalBinary()
+		if err != nil {
+			b.Fatalf("failed to encode ArtIpProgReply: %s", err)
+		}
+	}
+}

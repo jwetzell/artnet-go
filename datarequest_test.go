@@ -30,3 +30,14 @@ func TestGoodArtDataRequestUnmarshal(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkArtDataRequestMarshalBinary(b *testing.B) {
+	data := artnet.ArtDataRequest{}
+
+	for b.Loop() {
+		_, err := data.MarshalBinary()
+		if err != nil {
+			b.Fatalf("failed to encode ArtDataRequest: %s", err)
+		}
+	}
+}

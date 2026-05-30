@@ -30,3 +30,14 @@ func TestGoodArtCommandUnmarshal(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkArtCommandMarshalBinary(b *testing.B) {
+	data := artnet.ArtCommand{}
+
+	for b.Loop() {
+		_, err := data.MarshalBinary()
+		if err != nil {
+			b.Fatalf("failed to encode ArtCommand: %s", err)
+		}
+	}
+}

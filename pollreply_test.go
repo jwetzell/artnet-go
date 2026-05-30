@@ -30,3 +30,14 @@ func TestGoodArtPollReplyUnmarshal(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkArtPollReplyMarshalBinary(b *testing.B) {
+	data := artnet.ArtPollReply{}
+
+	for b.Loop() {
+		_, err := data.MarshalBinary()
+		if err != nil {
+			b.Fatalf("failed to encode ArtPollReply: %s", err)
+		}
+	}
+}

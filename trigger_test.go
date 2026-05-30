@@ -30,3 +30,14 @@ func TestGoodArtTriggerUnmarshal(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkArtTriggerMarshalBinary(b *testing.B) {
+	data := artnet.ArtTrigger{}
+
+	for b.Loop() {
+		_, err := data.MarshalBinary()
+		if err != nil {
+			b.Fatalf("failed to encode ArtTrigger: %s", err)
+		}
+	}
+}
