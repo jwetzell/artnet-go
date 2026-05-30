@@ -1,9 +1,10 @@
 package artnet_test
 
 import (
-	"slices"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/jwetzell/artnet-go"
 )
 
@@ -49,7 +50,7 @@ func TestGoodArtDmx(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		got := artnet.ArtDmx{}
+		got := &artnet.ArtDmx{}
 
 		err := got.UnmarshalBinary(test.Data)
 
@@ -57,26 +58,10 @@ func TestGoodArtDmx(t *testing.T) {
 			t.Fatalf("failed to decode ArtDmx: %s", err)
 		}
 
-		if got.Sequence != test.Expected.Sequence {
-			t.Fatalf("ArtDmx Sequence does not match got: %d expected: %d", got.Sequence, test.Expected.Sequence)
+		diff := cmp.Diff(test.Expected, got, cmpopts.IgnoreUnexported(artnet.ArtDmx{}))
+		if diff != "" {
+			t.Fatalf("ArtDmx does not match\n%s", diff)
 		}
-
-		if got.Physical != test.Expected.Physical {
-			t.Fatalf("ArtDmx Physical does not match got: %d expected: %d", got.Physical, test.Expected.Physical)
-		}
-
-		if got.SubUni != test.Expected.SubUni {
-			t.Fatalf("ArtDmx SubUni does not match got: %d expected: %d", got.SubUni, test.Expected.SubUni)
-		}
-
-		if got.Net != test.Expected.Net {
-			t.Fatalf("ArtDmx Net does not match got: %d expected: %d", got.Net, test.Expected.Net)
-		}
-
-		if !slices.Equal(got.Data, test.Expected.Data) {
-			t.Fatalf("ArtDmx Data does not match got: %+v expected: %+v", got.Data, test.Expected.Data)
-		}
-
 	}
 }
 

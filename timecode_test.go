@@ -1,9 +1,10 @@
 package artnet_test
 
 import (
-	"reflect"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/jwetzell/artnet-go"
 )
 
@@ -36,8 +37,9 @@ func TestGoodArtTimeCodeUnmarshal(t *testing.T) {
 				t.Fatalf("failed to decode ArtTimeCode: %s", err)
 			}
 
-			if !reflect.DeepEqual(got, test.Expected) {
-				t.Fatalf("ArtTimeCode does not match got: %+v expected: %+v", got, test.Expected)
+			diff := cmp.Diff(test.Expected, got, cmpopts.IgnoreUnexported(artnet.ArtTimeCode{}))
+			if diff != "" {
+				t.Fatalf("ArtTimeCode does not match\n%s", diff)
 			}
 		})
 	}

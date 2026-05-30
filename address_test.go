@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/jwetzell/artnet-go"
 )
 
@@ -924,7 +925,7 @@ func TestGoodArtAddressUnmarshal(t *testing.T) {
 				t.Fatalf("failed to Unmarshal ArtAddress: %s", err)
 			}
 
-			diff := cmp.Diff(test.Expected, got)
+			diff := cmp.Diff(test.Expected, got, cmpopts.IgnoreUnexported(artnet.ArtAddress{}))
 			if diff != "" {
 				t.Fatalf("ArtAddress does not match\n%s", diff)
 			}

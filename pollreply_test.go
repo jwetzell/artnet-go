@@ -1,9 +1,10 @@
 package artnet_test
 
 import (
-	"reflect"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/jwetzell/artnet-go"
 )
 
@@ -22,8 +23,9 @@ func TestGoodArtPollReplyUnmarshal(t *testing.T) {
 			if err != nil {
 				t.Fatalf("failed to Unmarshal ArtPollReply: %s", err)
 			}
-			if !reflect.DeepEqual(got, test.Expected) {
-				t.Fatalf("ArtPollReply does not match got: %+v expected: %+v", got, test.Expected)
+			diff := cmp.Diff(test.Expected, got, cmpopts.IgnoreUnexported(artnet.ArtPollReply{}))
+			if diff != "" {
+				t.Fatalf("ArtPollReply does not match\n%s", diff)
 			}
 		})
 	}
