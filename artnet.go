@@ -85,6 +85,16 @@ func Decode(bytes []byte) (ArtNetPacket, error) {
 		}
 
 		return &artIpProgReply, nil
+	case OpAddress:
+		artAddress := ArtAddress{}
+
+		err := artAddress.UnmarshalBinary(bytes)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return &artAddress, nil
 	case OpDmx:
 		artDmx := ArtDmx{}
 

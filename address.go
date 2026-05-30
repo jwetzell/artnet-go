@@ -97,7 +97,7 @@ type ArtAddress struct {
 	SwOut       [4]uint8
 	SubSwitch   uint8
 	AcnPriority uint8
-	Command     uint8
+	Command     AddressCommand
 }
 
 func (aa *ArtAddress) GetOpCode() uint16 {
@@ -136,7 +136,7 @@ func (aa *ArtAddress) UnmarshalBinary(data []byte) error {
 	copy(aa.SwOut[:], data[offset+88:offset+92])
 	aa.SubSwitch = data[offset+92]
 	aa.AcnPriority = data[offset+93]
-	aa.Command = data[offset+94]
+	aa.Command = AddressCommand(data[offset+94])
 	return nil
 }
 
@@ -155,6 +155,6 @@ func (aa *ArtAddress) MarshalBinary() ([]byte, error) {
 	copy(data[offset+88:offset+92], aa.SwOut[:])
 	data[offset+92] = aa.SubSwitch
 	data[offset+93] = aa.AcnPriority
-	data[offset+94] = aa.Command
+	data[offset+94] = uint8(aa.Command)
 	return data, nil
 }
