@@ -75,66 +75,6 @@ func Decode(bytes []byte) (ArtNetPacket, error) {
 		}
 
 		return &artPollReply, nil
-	case OpIpProg:
-		artIpProg := ArtIpProg{}
-
-		err := artIpProg.UnmarshalBinary(bytes)
-
-		if err != nil {
-			return nil, err
-		}
-
-		return &artIpProg, nil
-	case OpIpProgReply:
-		artIpProgReply := ArtIpProgReply{}
-
-		err := artIpProgReply.UnmarshalBinary(bytes)
-
-		if err != nil {
-			return nil, err
-		}
-
-		return &artIpProgReply, nil
-	case OpAddress:
-		artAddress := ArtAddress{}
-
-		err := artAddress.UnmarshalBinary(bytes)
-
-		if err != nil {
-			return nil, err
-		}
-
-		return &artAddress, nil
-	case OpDmx:
-		artDmx := ArtDmx{}
-
-		err := artDmx.UnmarshalBinary(bytes)
-
-		if err != nil {
-			return nil, err
-		}
-
-		return &artDmx, nil
-	case OpTimeCode:
-		artTimeCode := ArtTimeCode{}
-
-		err := artTimeCode.UnmarshalBinary(bytes)
-
-		if err != nil {
-			return nil, err
-		}
-
-		return &artTimeCode, nil
-	case OpDataRequest:
-		artDataRequest := ArtDataRequest{}
-
-		err := artDataRequest.UnmarshalBinary(bytes)
-
-		if err != nil {
-			return nil, err
-		}
-
-		return &artDataRequest, nil
 	case OpDiagData:
 		artDiagData := ArtDiagData{}
 
@@ -155,16 +95,36 @@ func Decode(bytes []byte) (ArtNetPacket, error) {
 		}
 
 		return &artCommand, nil
-	case OpTrigger:
-		artTrigger := ArtTrigger{}
+	case OpDataRequest:
+		artDataRequest := ArtDataRequest{}
 
-		err := artTrigger.UnmarshalBinary(bytes)
+		err := artDataRequest.UnmarshalBinary(bytes)
 
 		if err != nil {
 			return nil, err
 		}
 
-		return &artTrigger, nil
+		return &artDataRequest, nil
+	case OpDmx:
+		artDmx := ArtDmx{}
+
+		err := artDmx.UnmarshalBinary(bytes)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return &artDmx, nil
+	case OpNzs:
+		artNzs := ArtNzs{}
+
+		err := artNzs.UnmarshalBinary(bytes)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return &artNzs, nil
 	case OpSync:
 		artSync := ArtSync{}
 
@@ -175,6 +135,16 @@ func Decode(bytes []byte) (ArtNetPacket, error) {
 		}
 
 		return &artSync, nil
+	case OpAddress:
+		artAddress := ArtAddress{}
+
+		err := artAddress.UnmarshalBinary(bytes)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return &artAddress, nil
 	case OpTodRequest:
 		artTodRequest := ArtTodRequest{}
 
@@ -195,6 +165,46 @@ func Decode(bytes []byte) (ArtNetPacket, error) {
 		}
 
 		return &artTodControl, nil
+	case OpIpProg:
+		artIpProg := ArtIpProg{}
+
+		err := artIpProg.UnmarshalBinary(bytes)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return &artIpProg, nil
+	case OpIpProgReply:
+		artIpProgReply := ArtIpProgReply{}
+
+		err := artIpProgReply.UnmarshalBinary(bytes)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return &artIpProgReply, nil
+	case OpTimeCode:
+		artTimeCode := ArtTimeCode{}
+
+		err := artTimeCode.UnmarshalBinary(bytes)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return &artTimeCode, nil
+	case OpTrigger:
+		artTrigger := ArtTrigger{}
+
+		err := artTrigger.UnmarshalBinary(bytes)
+
+		if err != nil {
+			return nil, err
+		}
+
+		return &artTrigger, nil
 	default:
 		return nil, fmt.Errorf("unhandled opcode: %#x", opCode)
 	}
