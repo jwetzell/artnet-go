@@ -63,7 +63,7 @@ func (at *ArtTrigger) UnmarshalBinary(data []byte) error {
 }
 
 func (at *ArtTrigger) MarshalBinary() ([]byte, error) {
-	data := make([]byte, 8+10)
+	data := make([]byte, 12+6)
 	copy(data[0:8], at.id[:])
 	binary.LittleEndian.PutUint16(data[8:10], at.opCode)
 	data[10] = at.ProtVerHi

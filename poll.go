@@ -55,7 +55,7 @@ func (ap *ArtPoll) UnmarshalBinary(data []byte) error {
 }
 
 func (ap *ArtPoll) MarshalBinary() ([]byte, error) {
-	data := make([]byte, 8+14)
+	data := make([]byte, 12+10)
 	copy(data[0:8], ArtNetID[:])
 	binary.LittleEndian.PutUint16(data[8:10], OpPoll)
 	data[10] = 0

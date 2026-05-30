@@ -51,7 +51,7 @@ func (ac *ArtCommand) UnmarshalBinary(data []byte) error {
 }
 
 func (ac *ArtCommand) MarshalBinary() ([]byte, error) {
-	data := make([]byte, 8+8)
+	data := make([]byte, 12+4+len(ac.Data))
 	copy(data[0:8], ArtNetID[:])
 	binary.LittleEndian.PutUint16(data[8:10], OpCommand)
 	data[10] = 0
@@ -62,6 +62,6 @@ func (ac *ArtCommand) MarshalBinary() ([]byte, error) {
 		return nil, errors.New("data length must be less than or equal to 512 bytes")
 	}
 	binary.BigEndian.PutUint16(data[14:16], dataLength)
-	data = append(data, ac.Data...)
+	copy(data[16:], ac.Data)
 	return data, nil
 }

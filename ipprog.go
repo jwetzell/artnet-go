@@ -83,7 +83,7 @@ func (aip *ArtIpProg) UnmarshalBinary(data []byte) error {
 }
 
 func (aip *ArtIpProg) MarshalBinary() ([]byte, error) {
-	data := make([]byte, 8+26)
+	data := make([]byte, 12+22)
 	copy(data[0:8], ArtNetID[:])
 	binary.LittleEndian.PutUint16(data[8:10], OpIpProg)
 	data[10] = 0

@@ -46,7 +46,7 @@ func (atc *ArtTimeCode) UnmarshalBinary(data []byte) error {
 }
 
 func (atc *ArtTimeCode) MarshalBinary() ([]byte, error) {
-	data := make([]byte, 8+11)
+	data := make([]byte, 12+7)
 	copy(data[0:8], ArtNetID[:])
 	binary.LittleEndian.PutUint16(data[8:10], OpTimeCode)
 	data[10] = 0

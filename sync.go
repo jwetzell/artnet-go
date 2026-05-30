@@ -37,7 +37,7 @@ func (as *ArtSync) UnmarshalBinary(data []byte) error {
 }
 
 func (as *ArtSync) MarshalBinary() ([]byte, error) {
-	data := make([]byte, 8+6)
+	data := make([]byte, 12+2)
 	copy(data[0:8], ArtNetID[:])
 	binary.LittleEndian.PutUint16(data[8:10], OpSync)
 	data[10] = 0

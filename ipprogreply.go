@@ -84,7 +84,7 @@ func (aipr *ArtIpProgReply) UnmarshalBinary(data []byte) error {
 }
 
 func (aipr *ArtIpProgReply) MarshalBinary() ([]byte, error) {
-	data := make([]byte, 8+26)
+	data := make([]byte, 12+22)
 	copy(data[0:8], ArtNetID[:])
 	binary.LittleEndian.PutUint16(data[8:10], OpIpProgReply)
 	data[10] = 0

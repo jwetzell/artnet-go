@@ -127,7 +127,7 @@ func (aa *ArtAddress) UnmarshalBinary(data []byte) error {
 }
 
 func (aa *ArtAddress) MarshalBinary() ([]byte, error) {
-	data := make([]byte, 8+99)
+	data := make([]byte, 12+95)
 	copy(data[0:8], ArtNetID[:])
 	binary.LittleEndian.PutUint16(data[8:10], OpAddress)
 	data[10] = 0

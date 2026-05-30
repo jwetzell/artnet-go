@@ -67,7 +67,7 @@ func (adr *ArtTodControl) UnmarshalBinary(data []byte) error {
 }
 
 func (adr *ArtTodControl) MarshalBinary() ([]byte, error) {
-	data := make([]byte, 8+16)
+	data := make([]byte, 12+12)
 	copy(data[0:8], ArtNetID[:])
 	binary.LittleEndian.PutUint16(data[8:10], OpTodControl)
 	data[10] = 0

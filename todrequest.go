@@ -71,7 +71,7 @@ func (adr *ArtTodRequest) MarshalBinary() ([]byte, error) {
 	if len(adr.Address) > 32 {
 		return nil, errors.New("address count must not be greater than 32")
 	}
-	data := make([]byte, 8+16+len(adr.Address))
+	data := make([]byte, 12+12+len(adr.Address))
 	copy(data[0:8], ArtNetID[:])
 	binary.LittleEndian.PutUint16(data[8:10], OpTodRequest)
 	data[10] = 0

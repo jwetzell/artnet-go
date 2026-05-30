@@ -50,7 +50,7 @@ func (an *ArtNzs) UnmarshalBinary(data []byte) error {
 }
 
 func (an *ArtNzs) MarshalBinary() ([]byte, error) {
-	data := make([]byte, 8+8)
+	data := make([]byte, 12+6+len(an.Data))
 	copy(data[0:8], ArtNetID[:])
 	binary.LittleEndian.PutUint16(data[8:10], OpNzs)
 	data[10] = 0

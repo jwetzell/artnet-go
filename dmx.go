@@ -54,7 +54,7 @@ func (ad *ArtDmx) UnmarshalBinary(data []byte) error {
 
 func (ad *ArtDmx) MarshalBinary() ([]byte, error) {
 	// TODO(jwetzell): check max data length
-	data := make([]byte, 8+10+len(ad.Data))
+	data := make([]byte, 12+6+len(ad.Data))
 	copy(data[0:8], ArtNetID[:])
 	binary.LittleEndian.PutUint16(data[8:10], OpDmx)
 	data[10] = 0

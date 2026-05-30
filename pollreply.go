@@ -28,9 +28,9 @@ type ArtPollReply struct {
 	AcnPriority uint8
 	SwMacro     uint8
 	SwRemote    uint8
-	Spare1      uint8
-	Spare2      uint8
-	Spare3      uint8
+	spare1      uint8
+	spare2      uint8
+	spare3      uint8
 	Style       uint8
 	MAC         [6]uint8
 	// TODO(jwetzell): support extended poll fields
@@ -89,9 +89,9 @@ func (ap *ArtPollReply) UnmarshalBinary(data []byte) error {
 	ap.AcnPriority = data[194]
 	ap.SwMacro = data[195]
 	ap.SwRemote = data[196]
-	ap.Spare1 = data[197]
-	ap.Spare2 = data[198]
-	ap.Spare3 = data[199]
+	ap.spare1 = data[197]
+	ap.spare2 = data[198]
+	ap.spare3 = data[199]
 	ap.Style = data[200]
 	copy(ap.MAC[:], data[201:207])
 	return nil
@@ -128,9 +128,9 @@ func (ap *ArtPollReply) MarshalBinary() ([]byte, error) {
 	data[194] = ap.AcnPriority
 	data[195] = ap.SwMacro
 	data[196] = ap.SwRemote
-	data[197] = ap.Spare1
-	data[198] = ap.Spare2
-	data[199] = ap.Spare3
+	data[197] = ap.spare1
+	data[198] = ap.spare2
+	data[199] = ap.spare3
 	data[200] = ap.Style
 	copy(data[201:207], ap.MAC[:])
 	copy(data[207:211], ap.BindIp[:])

@@ -52,7 +52,7 @@ func (adr *ArtDataRequest) UnmarshalBinary(data []byte) error {
 }
 
 func (adr *ArtDataRequest) MarshalBinary() ([]byte, error) {
-	data := make([]byte, 8+32)
+	data := make([]byte, 12+28)
 	copy(data[0:8], ArtNetID[:])
 	binary.LittleEndian.PutUint16(data[8:10], OpDataRequest)
 	data[10] = 0
