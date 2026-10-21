@@ -3,9 +3,8 @@ package artnet_test
 import (
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/jwetzell/artnet-go"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGoodArtPollUnmarshal(t *testing.T) {
@@ -206,13 +205,64 @@ func TestGoodArtPollUnmarshal(t *testing.T) {
 			got := &artnet.ArtPoll{}
 
 			err := got.UnmarshalBinary(test.Data)
-			if err != nil {
-				t.Fatalf("failed to Unmarshal ArtPoll: %s", err)
-			}
-			diff := cmp.Diff(test.Expected, got, cmpopts.IgnoreUnexported(artnet.ArtPoll{}))
-			if diff != "" {
-				t.Fatalf("ArtPoll does not match\n%s", diff)
-			}
+			require.NoError(t, err)
+			require.Equal(t, artnet.OpPoll, got.GetOpCode())
+			require.Equal(t, test.Expected, got)
+		})
+	}
+}
+
+func TestBadArtPollUnmarshal(t *testing.T) {
+	tests := []struct {
+		Name          string
+		Data          []byte
+		ExpectedError string
+	}{
+		{
+			Name:          "Too Short",
+			Data:          []byte{65, 114, 116, 45, 78, 101, 116, 0, 0},
+			ExpectedError: "ArtPoll packet must be at least 14 bytes long",
+		},
+		{
+			Name:          "Invalid Header",
+			Data:          []byte{0x41, 0x72, 0x74, 0x2d, 0x4e, 0x65, 0x73, 0x00, 0x00, 0x20, 0x00, 0x0e, 0x00, 0x00},
+			ExpectedError: "ID does not match Art-Net ID",
+		},
+		{
+			Name:          "Incorrect OpCode",
+			Data:          []byte{0x41, 0x72, 0x74, 0x2d, 0x4e, 0x65, 0x74, 0x00, 0x00, 0x21, 0x00, 0x0e, 0x00, 0x00},
+			ExpectedError: "packet does not have the correct OpCode for an ArtPoll packet",
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.Name, func(t *testing.T) {
+			got := &artnet.ArtPoll{}
+			err := got.UnmarshalBinary(test.Data)
+			require.Error(t, err)
+			require.EqualError(t, err, test.ExpectedError)
+		})
+	}
+}
+
+func TestGoodArtPollMarshal(t *testing.T) {
+	tests := []struct {
+		Name     string
+		Expected []byte
+		Data     *artnet.ArtPoll
+	}{
+		{
+			Name:     "basic",
+			Expected: []byte{0x41, 0x72, 0x74, 0x2d, 0x4e, 0x65, 0x74, 0x00, 0x00, 0x20, 0x00, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
+			Data:     &artnet.ArtPoll{},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.Name, func(t *testing.T) {
+			got, err := test.Data.MarshalBinary()
+			require.NoError(t, err)
+			require.Equal(t, test.Expected, got)
 		})
 	}
 }
