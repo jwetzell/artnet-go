@@ -21,7 +21,7 @@ type ArtDiagData struct {
 	DiagPriority DiagPriority
 	LogicalPort  uint8
 	filler3      uint8
-	Data         []uint8
+	Data         string
 }
 
 func (add *ArtDiagData) GetOpCode() uint16 {
@@ -53,8 +53,7 @@ func (add *ArtDiagData) UnmarshalBinary(data []byte) error {
 	if len(data[offset+6:]) < int(dataLength) {
 		return errors.New("[]byte length not long enough to contain data length specified in packet")
 	}
-	add.Data = make([]uint8, dataLength)
-	copy(add.Data, data[offset+6:offset+6+int(dataLength)])
+	add.Data = string(data[offset+6 : offset+6+int(dataLength)])
 	return nil
 }
 
@@ -73,6 +72,6 @@ func (add *ArtDiagData) MarshalBinary() ([]byte, error) {
 		return nil, errors.New("data length must be less than or equal to 512 bytes")
 	}
 	binary.BigEndian.PutUint16(data[16:18], dataLength)
-	copy(data[18:], add.Data)
+	copy(data[18:], []byte(add.Data))
 	return data, nil
 }

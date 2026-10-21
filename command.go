@@ -15,7 +15,7 @@ const (
 
 type ArtCommand struct {
 	EstaMan uint16
-	Data    []uint8
+	Data    string
 }
 
 func (ac *ArtCommand) GetOpCode() uint16 {
@@ -45,8 +45,7 @@ func (ac *ArtCommand) UnmarshalBinary(data []byte) error {
 	if len(data[offset+4:]) < dataLength {
 		return errors.New("[]byte length not long enough to contain data length specified in packet")
 	}
-	ac.Data = make([]uint8, dataLength)
-	copy(ac.Data, data[offset+4:offset+4+dataLength])
+	ac.Data = string(data[offset+4 : offset+4+dataLength])
 	return nil
 }
 
@@ -62,6 +61,6 @@ func (ac *ArtCommand) MarshalBinary() ([]byte, error) {
 		return nil, errors.New("data length must be less than or equal to 512 bytes")
 	}
 	binary.BigEndian.PutUint16(data[14:16], dataLength)
-	copy(data[16:], ac.Data)
+	copy(data[16:], []byte(ac.Data))
 	return data, nil
 }

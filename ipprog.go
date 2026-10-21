@@ -37,7 +37,7 @@ func (aip *ArtIpProg) GetOpCode() uint16 {
 
 func (aip *ArtIpProg) UnmarshalBinary(data []byte) error {
 	if len(data) < 34 {
-		return errors.New("ArtIpProg packet must be at least 18 bytes long")
+		return errors.New("ArtIpProg packet must be at least 34 bytes long")
 	}
 
 	if !slices.Equal(ArtNetID[:], data[0:8]) {
