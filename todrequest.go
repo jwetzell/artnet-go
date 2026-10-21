@@ -33,8 +33,8 @@ func (adr *ArtTodRequest) GetOpCode() uint16 {
 
 func (adr *ArtTodRequest) UnmarshalBinary(data []byte) error {
 
-	if len(data) < 32 {
-		return errors.New("ArtTodRequest packet must be at least 32 bytes long")
+	if len(data) < 24 {
+		return errors.New("ArtTodRequest packet must be at least 24 bytes long")
 	}
 
 	if !slices.Equal(ArtNetID[:], data[0:8]) {
