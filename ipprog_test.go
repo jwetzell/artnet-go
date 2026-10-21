@@ -3,9 +3,8 @@ package artnet_test
 import (
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/jwetzell/artnet-go"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGoodArtIpProgUnmarshal(t *testing.T) {
@@ -42,13 +41,11 @@ func TestGoodArtIpProgUnmarshal(t *testing.T) {
 			got := &artnet.ArtIpProg{}
 
 			err := got.UnmarshalBinary(test.Data)
-			if err != nil {
-				t.Fatalf("failed to Unmarshal ArtIpProg: %s", err)
-			}
-			diff := cmp.Diff(test.Expected, got, cmpopts.IgnoreUnexported(artnet.ArtIpProg{}))
-			if diff != "" {
-				t.Fatalf("ArtIpProg does not match\n%s", diff)
-			}
+			require.NoError(t, err)
+
+			require.Equal(t, artnet.OpIpProg, got.GetOpCode())
+
+			require.Equal(t, test.Expected, got)
 		})
 	}
 }
@@ -60,9 +57,7 @@ func BenchmarkArtIpProgUnmarshalBinary(b *testing.B) {
 		got := artnet.ArtIpProg{}
 
 		err := got.UnmarshalBinary(data)
-		if err != nil {
-			b.Fatalf("failed to decode ArtIpProg: %s", err)
-		}
+		require.NoError(b, err)
 	}
 }
 
@@ -87,9 +82,7 @@ func BenchmarkArtIpProgMarshalBinary(b *testing.B) {
 
 	for b.Loop() {
 		_, err := data.MarshalBinary()
-		if err != nil {
-			b.Fatalf("failed to encode ArtIpProg: %s", err)
-		}
+		require.NoError(b, err)
 	}
 }
 

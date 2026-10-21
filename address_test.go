@@ -3,9 +3,8 @@ package artnet_test
 import (
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/jwetzell/artnet-go"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGoodArtAddressUnmarshal(t *testing.T) {
@@ -921,14 +920,11 @@ func TestGoodArtAddressUnmarshal(t *testing.T) {
 			got := &artnet.ArtAddress{}
 
 			err := got.UnmarshalBinary(test.Data)
-			if err != nil {
-				t.Fatalf("failed to Unmarshal ArtAddress: %s", err)
-			}
+			require.NoError(t, err)
 
-			diff := cmp.Diff(test.Expected, got, cmpopts.IgnoreUnexported(artnet.ArtAddress{}))
-			if diff != "" {
-				t.Fatalf("ArtAddress does not match\n%s", diff)
-			}
+			require.Equal(t, artnet.OpAddress, got.GetOpCode())
+
+			require.Equal(t, test.Expected, got)
 		})
 	}
 }
@@ -940,9 +936,7 @@ func BenchmarkArtAddressUnmarshalBinary(b *testing.B) {
 		got := artnet.ArtAddress{}
 
 		err := got.UnmarshalBinary(data)
-		if err != nil {
-			b.Fatalf("failed to decode ArtAddress: %s", err)
-		}
+		require.NoError(b, err)
 	}
 }
 
@@ -961,9 +955,7 @@ func BenchmarkArtAddressMarshalBinary(b *testing.B) {
 
 	for b.Loop() {
 		_, err := data.MarshalBinary()
-		if err != nil {
-			b.Fatalf("failed to encode ArtAddress: %s", err)
-		}
+		require.NoError(b, err)
 	}
 }
 

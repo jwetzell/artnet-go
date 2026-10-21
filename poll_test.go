@@ -274,9 +274,7 @@ func BenchmarkArtPollUnmarshalBinary(b *testing.B) {
 		got := artnet.ArtPoll{}
 
 		err := got.UnmarshalBinary(data)
-		if err != nil {
-			b.Fatalf("failed to decode ArtPoll: %s", err)
-		}
+		require.NoError(b, err)
 	}
 }
 
@@ -292,9 +290,7 @@ func BenchmarkArtPollMarshalBinary(b *testing.B) {
 
 	for b.Loop() {
 		_, err := data.MarshalBinary()
-		if err != nil {
-			b.Fatalf("failed to encode ArtPoll: %s", err)
-		}
+		require.NoError(b, err)
 	}
 }
 

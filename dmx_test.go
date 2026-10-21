@@ -152,9 +152,7 @@ func BenchmarkArtDmxUnmarshalBinary(b *testing.B) {
 		got := artnet.ArtDmx{}
 
 		err := got.UnmarshalBinary(data)
-		if err != nil {
-			b.Fatalf("failed to decode ArtDmx: %s", err)
-		}
+		require.NoError(b, err)
 	}
 }
 
@@ -169,9 +167,7 @@ func BenchmarkArtDmxMarshalBinary(b *testing.B) {
 
 	for b.Loop() {
 		_, err := data.MarshalBinary()
-		if err != nil {
-			b.Fatalf("failed to encode ArtDmx: %s", err)
-		}
+		require.NoError(b, err)
 	}
 }
 

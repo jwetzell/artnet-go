@@ -112,9 +112,7 @@ func BenchmarkArtTimeCodeUnmarshalBinary(b *testing.B) {
 		got := artnet.ArtTimeCode{}
 
 		err := got.UnmarshalBinary(data)
-		if err != nil {
-			b.Fatalf("failed to decode ArtTimeCode: %s", err)
-		}
+		require.NoError(b, err)
 	}
 }
 
@@ -130,9 +128,7 @@ func BenchmarkArtTimeCodeMarshalBinary(b *testing.B) {
 
 	for b.Loop() {
 		_, err := data.MarshalBinary()
-		if err != nil {
-			b.Fatalf("failed to encode ArtTimeCode: %s", err)
-		}
+		require.NoError(b, err)
 	}
 }
 

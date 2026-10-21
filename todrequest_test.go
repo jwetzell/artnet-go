@@ -287,9 +287,7 @@ func BenchmarkArtTodRequestUnmarshalBinary(b *testing.B) {
 		got := artnet.ArtTodRequest{}
 
 		err := got.UnmarshalBinary(data)
-		if err != nil {
-			b.Fatalf("failed to decode ArtTodRequest: %s", err)
-		}
+		require.NoError(b, err)
 	}
 }
 
@@ -302,9 +300,7 @@ func BenchmarkArtTodRequestMarshalBinary(b *testing.B) {
 
 	for b.Loop() {
 		_, err := data.MarshalBinary()
-		if err != nil {
-			b.Fatalf("failed to encode ArtTodRequest: %s", err)
-		}
+		require.NoError(b, err)
 	}
 }
 

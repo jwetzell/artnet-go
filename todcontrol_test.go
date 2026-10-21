@@ -3,9 +3,8 @@ package artnet_test
 import (
 	"testing"
 
-	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/jwetzell/artnet-go"
+	"github.com/stretchr/testify/require"
 )
 
 func TestGoodArtTodControlUnmarshal(t *testing.T) {
@@ -30,13 +29,11 @@ func TestGoodArtTodControlUnmarshal(t *testing.T) {
 			got := &artnet.ArtTodControl{}
 
 			err := got.UnmarshalBinary(test.Data)
-			if err != nil {
-				t.Fatalf("failed to Unmarshal ArtTodControl: %s", err)
-			}
-			diff := cmp.Diff(test.Expected, got, cmpopts.IgnoreUnexported(artnet.ArtTodControl{}))
-			if diff != "" {
-				t.Fatalf("ArtTodControl does not match\n%s", diff)
-			}
+			require.NoError(t, err)
+
+			require.Equal(t, artnet.OpTodControl, got.GetOpCode())
+
+			require.Equal(t, test.Expected, got)
 		})
 	}
 }
@@ -48,9 +45,7 @@ func BenchmarkArtTodControlUnmarshalBinary(b *testing.B) {
 		got := artnet.ArtTodControl{}
 
 		err := got.UnmarshalBinary(data)
-		if err != nil {
-			b.Fatalf("failed to decode ArtTodControl: %s", err)
-		}
+		require.NoError(b, err)
 	}
 }
 
@@ -63,9 +58,7 @@ func BenchmarkArtTodControlMarshalBinary(b *testing.B) {
 
 	for b.Loop() {
 		_, err := data.MarshalBinary()
-		if err != nil {
-			b.Fatalf("failed to encode ArtTodControl: %s", err)
-		}
+		require.NoError(b, err)
 	}
 }
 
